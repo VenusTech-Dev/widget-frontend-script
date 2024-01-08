@@ -1,6 +1,6 @@
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js";
-const initialise = async (api_key) => {
+export const initialise = async (api_key) => {
   const url = "https://dev-dex-widget-backend-6bc8bcc9eb98.herokuapp.com/api/v1"
   const widgetInitialise = await (await fetch(`${url}/initialise`, {
     method: "GET",
