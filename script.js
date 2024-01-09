@@ -1,14 +1,16 @@
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js";
 export const initialise = async (api_key) => {
-  const url = "https://dev-dex-widget-backend-6bc8bcc9eb98.herokuapp.com/api/v1"
-  const widgetInitialise = await (await fetch(`${url}/initialise`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": api_key,
-    },
-  })).json();
+  const url = "https://dev-dex-widget-backend-6bc8bcc9eb98.herokuapp.com/api/v1";
+  const widgetInitialise = await (
+    await fetch(`${url}/initialise`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": api_key,
+      },
+    })
+  ).json();
   console.log(widgetInitialise);
   if (!widgetInitialise.success) {
     console.log(widgetInitialise.message);
@@ -18,13 +20,15 @@ export const initialise = async (api_key) => {
   console.log(position, color, size, icon);
   let threadId = localStorage.getItem("threadId");
   if (!threadId) {
-    const thread = await (await fetch(`${url}/genThread`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": api_key,
-      },
-    })).json();
+    const thread = await (
+      await fetch(`${url}/genThread`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": api_key,
+        },
+      })
+    ).json();
     console.log(thread);
     if (!thread.success) {
       console.log(thread.message);
@@ -34,22 +38,20 @@ export const initialise = async (api_key) => {
     threadId = thread.data;
   }
   console.log(threadId);
-  let isLoading = false
-  const messages = [{
-    id: "msg_WQJyw3uUAXUeSDabQq3VlEVJ",
-    role: "assistant",
-    content: "Hello again! How can I assist you with the product today? If you have any specific questions or need support, please let me know."
-  },
-  {
-    id: "msg_WQJyw3uUAXUeSDabQq3VlEVJ",
-    role: "user",
-    content: "Hello again! How can I assist you with the product today? If you have any specific questions or need support, please let me know."
-  },
-  {
-    id: "msg_WQJyw3uUAXUeSDabQq3VlEVJ",
-    role: "assistant",
-    content: "Hello again! How can I assist you with the product today? If you have any specific questions or need support, please let me know."
-  }]
+  let isLoading = false;
+  const getMessages = await (
+    await fetch(`${url}/getMessages?threadId=${threadId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": api_key,
+      },
+    })
+  ).json();
+  if (!getMessages.success) {
+    return
+  }
+  let prevMessages = getMessages.data;
   const widgetHTML = `<div class="widget">
 <button class="chatbot-toggler">
 <span>
@@ -77,6 +79,7 @@ export const initialise = async (api_key) => {
   ></dotlottie-player>
 </span>
 </button>
+<div class="entire-chatbot">
 <div class="chatbot semi-closed">
 <header>
   <span class="expand-btn"
@@ -283,6 +286,7 @@ export const initialise = async (api_key) => {
   </span>
 </div>
 </div>
+</div>
 </div>`;
 
   const widgetCSS = `@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap");
@@ -317,6 +321,13 @@ export const initialise = async (api_key) => {
   transition: all 0.2s ease;
 }
 
+.modal-open .entire-chatbot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
 body.show-chatbot .chatbot-toggler {
   transform: rotate(360deg);
 }
@@ -335,9 +346,12 @@ body.show-chatbot .chatbot-toggler span:last-child {
   opacity: 1;
 }
 
-.widget * {
+* {
   margin: 0;
   box-sizing: border-box;
+}
+
+.widget * {
   font-family: "Poppins", sans-serif;
 }
 
@@ -375,7 +389,7 @@ body.show-chatbot .chatbot {
   overflow-y: auto;
   height: 32rem;
   width: 27rem;
-  padding-bottom: 92px;
+  padding-bottom: 110px;
 }
 
 .chat-container .chat {
@@ -722,14 +736,13 @@ ol {
 }
 
 .modal-open .chatbot {
-  position: fixed;
+  position: initial;
   top: 5%;
-  left: 20%;
-  right: 20%;
   bottom: 5%;
   transform: translate(-50%, -50%);
   max-width: 900px;
-  max-height: calc(100% - 64px);
+  height: calc(100% - 64px);
+  width: calc(100% - 64px);
   z-index: 1010;
   display: flex;
   flex-direction: column;
@@ -871,7 +884,6 @@ code {
   const expandBtn = document.querySelector(".expand-btn");
 
   let userText = null;
-  const API_KEY = "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";
   const initialInputHeight = chatInput.scrollHeight;
 
   const copySvg = `<svg
@@ -1006,13 +1018,127 @@ xmlns="http://www.w3.org/2000/svg"
 `;
   let isDefaultTextPresent = false;
 
-  const loadDataFromLocalstorage = () => {
-    const chatsFromStorage = localStorage.getItem("all-chats");
-    if (chatsFromStorage) {
-      chatContainer.innerHTML = chatsFromStorage;
-    } else {
+  const loadDataFromPrevMessagesArray = () => {
+    if (prevMessages.length === 0) {
       chatContainer.innerHTML = defaultText;
       isDefaultTextPresent = true;
+    } else {
+      prevMessages.forEach((prevMessage) => {
+        if (prevMessage.role === "user") {
+          const html = `<div class="chat-content">
+                      <div class="chat-details">
+                      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20Z" fill="white"/>
+                        <path d="M20.183 25H16.5V14.6104H20.2135C21.2585 14.6104 22.1581 14.8184 22.9123 15.2344C23.6665 15.647 24.2466 16.2406 24.6524 17.015C25.0616 17.7895 25.2662 18.7162 25.2662 19.7951C25.2662 20.8773 25.0616 21.8074 24.6524 22.5853C24.2466 23.3631 23.6631 23.9601 22.9022 24.376C22.1446 24.792 21.2382 25 20.183 25ZM18.6966 23.1179H20.0917C20.7411 23.1179 21.2873 23.0029 21.7303 22.773C22.1767 22.5396 22.5116 22.1794 22.7348 21.6924C22.9614 21.202 23.0747 20.5696 23.0747 19.7951C23.0747 19.0274 22.9614 18.4 22.7348 17.913C22.5116 17.426 22.1784 17.0675 21.7354 16.8375C21.2923 16.6075 20.7461 16.4925 20.0968 16.4925H18.6966V23.1179Z" fill="#070B13"/>
+                      </svg>
+                          <p>${prevMessage.content}</p>
+                      </div>
+                  </div>`;
+          const outgoingChatDiv = createChatElement(html, "outgoing");
+          chatContainer.querySelector(".default-text")?.remove();
+          chatContainer.appendChild(outgoingChatDiv);
+        } else if (prevMessage.role === "assistant") {
+          const html = `<div class="chat-content">
+                    <div class="chat-details">
+                      <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 40 40"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g clip-path="url(#clip0_156_920)">
+                        <path
+                          d="M17.7297 22.2162H6.64865V26.6487H17.7297M17.7297 13.3514H6.64865V17.7838H17.7297M24.1789 9.82759L21.0541 12.9525L28.1122 19.9955L20.973 27.0853L24.1836 30.296L34.3513 20M35.4595 0.0540771C37.9195 0.0540771 39.8919 2.04867 39.8919 4.48651V35.5135C39.8919 36.6891 39.4249 37.8165 38.5937 38.6477C37.7624 39.479 36.635 39.946 35.4595 39.946H4.43243C3.25688 39.946 2.12947 39.479 1.29823 38.6477C0.466988 37.8165 0 36.6891 0 35.5135V4.48651C0 3.31096 0.466988 2.18355 1.29823 1.35231C2.12947 0.521064 3.25688 0.0540771 4.43243 0.0540771H35.4595Z"
+                          fill=${color}
+                        />
+                        <path
+                          d="M6.64865 13.3502L17.7297 13.3514V17.7838H6.64865V13.3502Z"
+                          fill="#FAFAFA"
+                        />
+                        <path
+                          d="M6.64865 22.2162H17.7297V26.6487H6.64865V22.2162Z"
+                          fill="#FAFAFA"
+                        />
+                        <path
+                          d="M20.973 27.0853L24.5946 23.5135L28.1122 19.9955L31.2771 23.1352L24.1836 30.296L20.973 27.0853Z"
+                          fill="#FAFAFA"
+                        />
+                        <path
+                          d="M24.1789 9.82759L34.4417 20.0206L31.2771 23.1352L26.2162 18.1146L21.0541 12.9525L24.1789 9.82759Z"
+                          fill="white"
+                        />
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_156_920">
+                          <rect
+                            width="40"
+                            height="40"
+                            fill="white"
+                            transform="matrix(-1 0 0 1 40 0)"
+                          />
+                        </clipPath>
+                      </defs>
+                    </svg>
+                    <div class="typing-animation">
+                        <div class="typing-dot" style="--delay: 0.2s"></div>
+                        <div class="typing-dot" style="--delay: 0.3s"></div>
+                        <div class="typing-dot" style="--delay: 0.4s"></div>
+                    </div>
+                </div>
+                <span >${copySvg}</span>
+            </div>`;
+          const incomingChatDiv = createChatElement(html, "incoming");
+          chatContainer.appendChild(incomingChatDiv);
+
+          const copyButton = incomingChatDiv.querySelector("span");
+          copyButton.addEventListener("click", () => copyResponse(copyButton));
+
+          const responseContainer = document.createElement("div");
+          responseContainer.classList.add("response-container");
+
+          responseContainer.innerHTML = marked.parse(prevMessage.content);
+
+          incomingChatDiv
+            .querySelector(".chat-details")
+            .appendChild(responseContainer);
+
+          const codeBlocks = responseContainer.querySelectorAll("pre code");
+          codeBlocks.forEach((codeBlock) => {
+            hljs.highlightElement(codeBlock);
+
+            const languageMatch = codeBlock.className.match(/language-(\w+)/);
+            if (languageMatch) {
+              const language = languageMatch[1];
+
+              const headerDiv = document.createElement("div");
+              headerDiv.className = "code-header";
+              headerDiv.textContent = `${language}`;
+
+              const copyBtn = document.createElement("button");
+              copyBtn.className = "copy-code-btn";
+              copyBtn.textContent = "Copy";
+              copyBtn.onclick = () => {
+                navigator.clipboard
+                  .writeText(codeBlock.textContent)
+                  .then(() => {
+                    copyBtn.textContent = "Copied!";
+                    setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
+                  });
+              };
+
+              codeBlock.parentNode.insertBefore(headerDiv, codeBlock);
+              headerDiv.appendChild(copyBtn);
+            }
+          });
+
+          const typingAnimation =
+            incomingChatDiv.querySelector(".typing-animation");
+          if (typingAnimation) {
+            typingAnimation.remove();
+          }
+        }
+      });
     }
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
   };
@@ -1027,11 +1153,14 @@ xmlns="http://www.w3.org/2000/svg"
     return new Promise((resolve, reject) => {
       const pollInterval = setInterval(async () => {
         try {
-          const response = await fetch(`${url}/checkRun?threadId=${threadId}&runId=${runId}`, {
-            headers: {
-              "x-api-key": apiKey,
-            },
-          });
+          const response = await fetch(
+            `${url}/checkRun?threadId=${threadId}&runId=${runId}`,
+            {
+              headers: {
+                "x-api-key": apiKey,
+              },
+            }
+          );
           const pollResponse = await response.json();
 
           if (pollResponse.data.status === "completed") {
@@ -1107,12 +1236,11 @@ xmlns="http://www.w3.org/2000/svg"
         }
       });
 
-      const typingAnimation = incomingChatDiv.querySelector(".typing-animation");
+      const typingAnimation =
+        incomingChatDiv.querySelector(".typing-animation");
       if (typingAnimation) {
         typingAnimation.remove();
       }
-
-      localStorage.setItem("all-chats", chatContainer.innerHTML);
     } catch (error) {
       const errorElement = document.createElement("p");
       errorElement.classList.add("error");
@@ -1218,22 +1346,24 @@ xmlns="http://www.w3.org/2000/svg"
   };
 
   deleteButton.addEventListener("click", async () => {
-    const thread = await (await fetch(`${url}/genThread`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": api_key,
-      },
-    })).json();
+    const thread = await (
+      await fetch(`${url}/genThread`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": api_key,
+        },
+      })
+    ).json();
     console.log(thread);
     if (!thread.success) {
       console.log(thread.message);
       return;
     }
-    localStorage.removeItem("all-chats");
     localStorage.setItem("threadId", thread.data);
     threadId = thread.data;
-    loadDataFromLocalstorage();
+    prevMessages = [];
+    loadDataFromPrevMessagesArray();
     isDefaultTextPresent = true;
   });
 
@@ -1250,7 +1380,7 @@ xmlns="http://www.w3.org/2000/svg"
     }
   });
 
-  loadDataFromLocalstorage();
+  loadDataFromPrevMessagesArray();
   sendButton.addEventListener("click", handleOutgoingChat);
 
   const modalBackdrop = document.createElement("div");
@@ -1303,8 +1433,7 @@ xmlns="http://www.w3.org/2000/svg"
       chatbot.classList.add("semi-closed");
     }
   };
-  console.log("DOM fully loaded and parsed");
-  loadDataFromLocalstorage();
+
   chatContainer.scrollTo(0, chatContainer.scrollHeight);
   if (isDefaultTextPresent) {
     manageChatbotState("semi-closed");
@@ -1347,7 +1476,6 @@ xmlns="http://www.w3.org/2000/svg"
     this.classList.remove("is_animating");
   });
 };
-document.addEventListener("DOMContentLoaded", () => {
-  const api_key = "9909749d-469d-4487-80e4-9fe48ba039f6"
-  initialise(api_key)
-});
+
+const api_key = "9909749d-469d-4487-80e4-9fe48ba039f6";
+initialise(api_key);
