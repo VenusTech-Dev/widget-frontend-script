@@ -1476,6 +1476,3 @@ xmlns="http://www.w3.org/2000/svg"
     this.classList.remove("is_animating");
   });
 };
-
-const api_key = "9909749d-469d-4487-80e4-9fe48ba039f6";
-initialise(api_key);
