@@ -1,7 +1,8 @@
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js";
 export const initialise = async (api_key) => {
-  const url = "https://dev-dex-widget-backend-6bc8bcc9eb98.herokuapp.com/api/v1";
+  const url =
+    "https://dev-dex-widget-backend-6bc8bcc9eb98.herokuapp.com/api/v1";
   const widgetInitialise = await (
     await fetch(`${url}/initialise`, {
       method: "GET",
@@ -49,7 +50,7 @@ export const initialise = async (api_key) => {
     })
   ).json();
   if (!getMessages.success) {
-    return
+    return;
   }
   let prevMessages = getMessages.data;
   const widgetHTML = `<div class="widget">
@@ -292,7 +293,7 @@ export const initialise = async (api_key) => {
   const widgetCSS = `@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap");
 
 :root {
-  --primary: ${color};
+  --prime: ${color};
   --text-color: #d1d5db;
   --icon-color: #d1d5db;
   --icon-hover-bg: #5b5e71;
@@ -317,7 +318,7 @@ export const initialise = async (api_key) => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--primary);
+  background: var(--prime);
   transition: all 0.2s ease;
 }
 
@@ -627,7 +628,7 @@ ol {
 
 /* .send-btn {
   cursor: pointer;
-  background: var(--primary);
+  background: var(--prime);
   margin-left: 0.75rem;
   width: 3rem;
   height: 3rem;
@@ -641,7 +642,7 @@ ol {
 
 .send-btn {
   cursor: pointer;
-  background: var(--primary);
+  background: var(--prime);
   margin-left: 0.75rem;
   display: flex;
   align-items: center;
@@ -885,6 +886,19 @@ code {
 
   let userText = null;
   const initialInputHeight = chatInput.scrollHeight;
+
+  const sentimentLottieMap = {
+    Angry:
+      "https://lottie.host/4ce0cd03-e3dc-4dbc-b3ee-353c166c6c0c/jqMzjHpY3A.json",
+    Surprise:
+      "https://lottie.host/e5fe29ae-ac0d-4028-a37c-b4ac99777b4e/ClmBvvIdd7.json",
+    Happy:
+      "https://lottie.host/5ead9118-8309-49be-b661-1ca06f982328/Q773uBZnnT.json",
+    Sad: "https://lottie.host/784cf22a-a966-4d03-ae0e-7ce719368b49/9sMWyJ0HQZ.json",
+    Scared:
+      "https://lottie.host/bc678f60-f383-41ca-bd71-094a0ac31abb/RXaqzsxdNS.json",
+    Fear: "https://lottie.host/1ce2708c-19c5-4c5b-903e-6119c5344b54/auAxVmT9XO.json",
+  };
 
   const copySvg = `<svg
 width="16"
@@ -1149,6 +1163,7 @@ xmlns="http://www.w3.org/2000/svg"
     chatDiv.innerHTML = content;
     return chatDiv;
   };
+
   const pollForCompletion = (url, runId, threadId, apiKey) => {
     return new Promise((resolve, reject) => {
       const pollInterval = setInterval(async () => {
@@ -1173,6 +1188,64 @@ xmlns="http://www.w3.org/2000/svg"
         }
       }, 1000);
     });
+  };
+
+  const analyzeSentiment = async (messageContent) => {
+    const text_to_emotion = await (
+      await fetch(`${url}/text_to_emotion`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": api_key,
+        },
+        redirect: "follow",
+        body: JSON.stringify({
+          text: messageContent,
+        }),
+      })
+    ).json();
+    if (!text_to_emotion.success) {
+      console.log(widgetInitialise.message);
+      return null;
+    }
+    return text_to_emotion.data;
+  };
+
+  const handleSentimentAnalysis = async (messageContent) => {
+    try {
+      const sentimentResponse = await analyzeSentiment(messageContent);
+      if (sentimentResponse) {
+        const maxSentiment = Object.keys(sentimentResponse).reduce((a, b) =>
+          sentimentResponse[a] >= sentimentResponse[b] ? a : b
+        );
+
+        if (sentimentLottieMap[maxSentiment]) {
+          const newLottiePlayer = document.createElement("dotlottie-player");
+          newLottiePlayer.setAttribute("src", sentimentLottieMap[maxSentiment]);
+          newLottiePlayer.setAttribute("background", "transparent");
+          newLottiePlayer.setAttribute("speed", "1");
+          newLottiePlayer.setAttribute("style", "width: 50px; height: 50px");
+          newLottiePlayer.setAttribute("direction", "1");
+          newLottiePlayer.setAttribute("mode", "normal");
+          newLottiePlayer.setAttribute("loop", "");
+          newLottiePlayer.setAttribute("autoplay", "");
+
+          const oldLottiePlayer = document.querySelector(
+            ".chatbot-toggler span:last-child dotlottie-player"
+          );
+          if (oldLottiePlayer) {
+            oldLottiePlayer.parentNode.replaceChild(
+              newLottiePlayer,
+              oldLottiePlayer
+            );
+          }
+        }
+        console.log(sentimentResponse);
+        console.log(maxSentiment);
+      }
+    } catch (error) {
+      console.error("Error during sentiment analysis", error);
+    }
   };
 
   const getChatResponse = async (incomingChatDiv) => {
@@ -1235,6 +1308,8 @@ xmlns="http://www.w3.org/2000/svg"
           headerDiv.appendChild(copyBtn);
         }
       });
+
+      handleSentimentAnalysis(messageContent);
 
       const typingAnimation =
         incomingChatDiv.querySelector(".typing-animation");
