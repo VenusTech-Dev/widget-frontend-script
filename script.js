@@ -2,7 +2,7 @@ import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js";
 
 export const initialise = async (api_key) => {
-  const FingerprintJS = await import('https://openfpcdn.io/fingerprintjs/v4');
+  const FingerprintJS = await import("https://openfpcdn.io/fingerprintjs/v4");
   async function getVisitorId() {
     // Load FingerprintJS
     const fp = await FingerprintJS.load();
@@ -37,8 +37,8 @@ export const initialise = async (api_key) => {
     return;
   }
   const { position, color, size, icon } = widgetInitialise.data;
-  let messageCountText = widgetInitialise.data.messageCountText
-  let { threadId } = widgetInitialise.data
+  let messageCountText = widgetInitialise.data.messageCountText;
+  let { threadId } = widgetInitialise.data;
   console.log(position, color, size, icon, threadId);
   // let threadId = localStorage.getItem("threadId");
   // if (!threadId) {
@@ -347,11 +347,8 @@ export const initialise = async (api_key) => {
   transition: all 0.2s ease;
 }
 
-.modal-open .entire-chatbot {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+.entire-chatbot {
+  z-index: 1010;
 }
 
 body.show-chatbot .chatbot-toggler {
@@ -760,6 +757,8 @@ ol {
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.2);
@@ -769,13 +768,11 @@ ol {
 }
 
 .modal-open .chatbot {
-  position: initial;
-  top: 5%;
-  bottom: 5%;
-  transform: translate(-50%, -50%);
-  max-width: 900px;
-  height: calc(100% - 64px);
-  width: calc(100% - 64px);
+  position: fixed;
+  top: 4%;
+  bottom: 4%;
+  left: 25%;
+  right: 25%;
   z-index: 1010;
   display: flex;
   flex-direction: column;
@@ -1380,7 +1377,8 @@ xmlns="http://www.w3.org/2000/svg"
               console.log("error", response.message);
               messageContent = response.message;
             } else {
-              messageContent = "Check your email and enter the 5 digit otp here";
+              messageContent =
+                "Check your email and enter the 5 digit otp here";
               takeOTP = true;
               // takeEmail = false;
             }
@@ -1388,23 +1386,35 @@ xmlns="http://www.w3.org/2000/svg"
         }
       } else {
         const response = await (await fetch(API_URL, requestOptions)).json();
-        if (!response.success && response.data !== "Inactive limit reached" && response.data !== "Limit reached") {
+        if (
+          !response.success &&
+          response.data !== "Inactive limit reached" &&
+          response.data !== "Limit reached"
+        ) {
           console.log("error", response.message);
           return;
         }
         if (response.success) {
           const run = response.data;
-          messageCountText = response.messageCountText
-          document.querySelector(".remaining-text").innerHTML = `Messages remaining ${messageCountText}`
-          const { message } = await pollForCompletion(url, run, threadId, api_key);
+          messageCountText = response.messageCountText;
+          document.querySelector(
+            ".remaining-text"
+          ).innerHTML = `Messages remaining ${messageCountText}`;
+          const { message } = await pollForCompletion(
+            url,
+            run,
+            threadId,
+            api_key
+          );
           messageContent = message.content;
         } else if (response.data === "Inactive limit reached") {
           messageContent = "Please enter your email to continue";
           takeEmail = true;
         } else if (response.data === "Limit reached") {
-          messageContent = "Uh oh! Looks like you have reached the message limit with Dex, want to chat more?";
+          messageContent =
+            "Uh oh! Looks like you have reached the message limit with Dex, want to chat more?";
           isLimitReached = true;
-          isRequestedForIncrease = response.isRequestedForIncrease
+          isRequestedForIncrease = response.isRequestedForIncrease;
         }
       }
       responseContainer.innerHTML = marked.parse(messageContent);
@@ -1427,8 +1437,10 @@ xmlns="http://www.w3.org/2000/svg"
           increaseLimitBtn.style.backgroundColor = "rgba(94, 91, 230, 0.21)";
           increaseLimitBtn.style.cursor = "not-allowed";
           increaseLimitBtn.style.border = "1px solid #5E5BE6";
-          document.querySelector(".typing-content").innerHTML = "Please check back after some time, you will get an email from us if your limit increase request gets approved";
-          document.querySelector(".typing-content").style.color = "var(--text-color)";
+          document.querySelector(".typing-content").innerHTML =
+            "Please check back after some time, you will get an email from us if your limit increase request gets approved";
+          document.querySelector(".typing-content").style.color =
+            "var(--text-color)";
           document.querySelector(".typing-content").style.fontSize = "14px";
           document.querySelector(".typing-content").style.textAlign = "center";
 
@@ -1449,18 +1461,21 @@ xmlns="http://www.w3.org/2000/svg"
             increaseLimitBtn.textContent = response.message;
           } else {
             increaseLimitBtn.textContent = "Request Sent";
-            document.querySelector(".typing-content").innerHTML = "Please check back after some time, you will get an email from us if your limit increase request gets approved";
-            document.querySelector(".typing-content").style.color = "var(--text-color)";
+            document.querySelector(".typing-content").innerHTML =
+              "Please check back after some time, you will get an email from us if your limit increase request gets approved";
+            document.querySelector(".typing-content").style.color =
+              "var(--text-color)";
             document.querySelector(".typing-content").style.fontSize = "14px";
             // text center
-            document.querySelector(".typing-content").style.textAlign = "center";
+            document.querySelector(".typing-content").style.textAlign =
+              "center";
             document.querySelector(".typing-content").style.display = "block";
           }
           isRequestedForIncrease = true;
           increaseLimitBtn.style.backgroundColor = "rgba(94, 91, 230, 0.21)";
           increaseLimitBtn.style.cursor = "not-allowed";
           increaseLimitBtn.style.border = "1px solid #5E5BE6";
-        }
+        };
         responseContainer.appendChild(increaseLimitBtn);
       }
 
