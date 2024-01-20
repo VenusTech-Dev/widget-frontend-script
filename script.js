@@ -1,14 +1,33 @@
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js";
+
 export const initialise = async (api_key) => {
+  const FingerprintJS = await import('https://openfpcdn.io/fingerprintjs/v4');
+  async function getVisitorId() {
+    // Load FingerprintJS
+    const fp = await FingerprintJS.load();
+
+    // Get the visitor identifier
+    const result = await fp.get();
+
+    // This is the visitor identifier:
+    const visitorId = result.visitorId;
+
+    // Return the visitorId if needed
+    return visitorId;
+  }
+  const visitorId = await getVisitorId();
+  console.log(visitorId);
   const url =
     "https://dev-dex-widget-backend-6bc8bcc9eb98.herokuapp.com/api/v1";
+  // const url = "http://localhost:4000/api/v1";
   const widgetInitialise = await (
     await fetch(`${url}/initialise`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": api_key,
+        "x-fingerprint": visitorId,
       },
     })
   ).json();
@@ -18,28 +37,31 @@ export const initialise = async (api_key) => {
     return;
   }
   const { position, color, size, icon } = widgetInitialise.data;
-  console.log(position, color, size, icon);
-  let threadId = localStorage.getItem("threadId");
-  if (!threadId) {
-    const thread = await (
-      await fetch(`${url}/genThread`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": api_key,
-        },
-      })
-    ).json();
-    console.log(thread);
-    if (!thread.success) {
-      console.log(thread.message);
-      return;
-    }
-    localStorage.setItem("threadId", thread.data);
-    threadId = thread.data;
-  }
-  console.log(threadId);
+  let messageCountText = widgetInitialise.data.messageCountText
+  let { threadId } = widgetInitialise.data
+  console.log(position, color, size, icon, threadId);
+  // let threadId = localStorage.getItem("threadId");
+  // if (!threadId) {
+  //   const thread = await (
+  //     await fetch(`${url}/genThread`, {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "x-api-key": api_key,
+  //       },
+  //     })
+  //   ).json();
+  //   console.log(thread);
+  //   if (!thread.success) {
+  //     console.log(thread.message);
+  //     return;
+  //   }
+  //   localStorage.setItem("threadId", thread.data);
+  //   threadId = thread.data;
+  // }
   let isLoading = false;
+  let takeEmail = false;
+  let takeOTP = false;
   const getMessages = await (
     await fetch(`${url}/getMessages?threadId=${threadId}`, {
       method: "GET",
@@ -285,6 +307,9 @@ export const initialise = async (api_key) => {
       </defs>
     </svg> -->
   </span>
+  <div class="remaining-message-container">
+    <p class="powered-text remaining-text">Messages remaining ${messageCountText}</p>
+  </div>
 </div>
 </div>
 </div>
@@ -318,7 +343,7 @@ export const initialise = async (api_key) => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--prime);
+  background-color: var(--prime);
   transition: all 0.2s ease;
 }
 
@@ -608,6 +633,13 @@ ol {
   padding-top: 12px;
   padding-bottom: 12px;
 }
+.remaining-message-container{
+  display: flex;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  padding: 12px 0px;
+}
 
 .powered-text {
   color: var(--placeholder-color);
@@ -620,7 +652,7 @@ ol {
   bottom: 0;
   width: 100%;
   display: flex;
-  padding: 2.7rem 1.25rem 1.25rem 1.25rem;
+  padding: 2.7rem 1.25rem 2.7rem 1.25rem;
   justify-content: center;
   align-items: center;
   background: var(--outgoing-chat-bg);
@@ -855,6 +887,26 @@ code {
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.85rem;
+}
+
+.fade-out {
+  animation: fadeOutAnimation 0.5s;
+  opacity: 0;
+}
+
+.fade-in {
+  animation: fadeInAnimation 0.5s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeOutAnimation {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fadeInAnimation {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }`;
 
   document.body.insertAdjacentHTML("beforeend", widgetHTML);
@@ -887,9 +939,13 @@ code {
   let userText = null;
   const initialInputHeight = chatInput.scrollHeight;
 
+  if (icon === null || icon === "Dex") {
+    chatbotToggler.style.backgroundColor = "rgba(0,0,0,0)";
+  } else {
+    chatbotToggler.style.backgroundColor = `var(--prime)`;
+  }
+
   const sentimentLottieMap = {
-    Angry:
-      "https://lottie.host/4ce0cd03-e3dc-4dbc-b3ee-353c166c6c0c/jqMzjHpY3A.json",
     Surprise:
       "https://lottie.host/e5fe29ae-ac0d-4028-a37c-b4ac99777b4e/ClmBvvIdd7.json",
     Happy:
@@ -897,7 +953,7 @@ code {
     Sad: "https://lottie.host/784cf22a-a966-4d03-ae0e-7ce719368b49/9sMWyJ0HQZ.json",
     Scared:
       "https://lottie.host/bc678f60-f383-41ca-bd71-094a0ac31abb/RXaqzsxdNS.json",
-    Fear: "https://lottie.host/1ce2708c-19c5-4c5b-903e-6119c5344b54/auAxVmT9XO.json",
+    Fear: "https://lottie.host/784cf22a-a966-4d03-ae0e-7ce719368b49/9sMWyJ0HQZ.json",
   };
 
   const copySvg = `<svg
@@ -1219,7 +1275,10 @@ xmlns="http://www.w3.org/2000/svg"
           sentimentResponse[a] >= sentimentResponse[b] ? a : b
         );
 
-        if (sentimentLottieMap[maxSentiment]) {
+        if (
+          sentimentLottieMap[maxSentiment] &&
+          sentimentResponse[maxSentiment] >= 0.5
+        ) {
           const newLottiePlayer = document.createElement("dotlottie-player");
           newLottiePlayer.setAttribute("src", sentimentLottieMap[maxSentiment]);
           newLottiePlayer.setAttribute("background", "transparent");
@@ -1234,10 +1293,12 @@ xmlns="http://www.w3.org/2000/svg"
             ".chatbot-toggler span:last-child dotlottie-player"
           );
           if (oldLottiePlayer) {
+            oldLottiePlayer.classList.add("fade-out");
             oldLottiePlayer.parentNode.replaceChild(
               newLottiePlayer,
               oldLottiePlayer
             );
+            newLottiePlayer.classList.add("fade-in");
           }
         }
         console.log(sentimentResponse);
@@ -1247,13 +1308,14 @@ xmlns="http://www.w3.org/2000/svg"
       console.error("Error during sentiment analysis", error);
     }
   };
+  let isLimitReached = false;
+  let isRequestedForIncrease = false;
 
   const getChatResponse = async (incomingChatDiv) => {
     isLoading = true;
     const API_URL = `${url}/addMessageAndRun`;
     const responseContainer = document.createElement("div");
     responseContainer.classList.add("response-container");
-
     const requestOptions = {
       method: "POST",
       headers: {
@@ -1267,16 +1329,140 @@ xmlns="http://www.w3.org/2000/svg"
     };
 
     try {
-      const response = await (await fetch(API_URL, requestOptions)).json();
-      if (!response.success) {
-        console.log("error", response.message);
-        return;
+      let messageContent = null;
+      if (takeEmail) {
+        if (takeOTP) {
+          const otpRegex = /^[0-9]{5}$/g;
+          if (!otpRegex.test(userText)) {
+            messageContent = "Please enter a valid otp";
+          } else {
+            const response = await (
+              await fetch(`${url}/verifyEmail`, {
+                method: "POST",
+                headers: {
+                  "x-api-key": api_key,
+                  "Content-Type": "application/json",
+                  "x-fingerprint": visitorId,
+                },
+                body: JSON.stringify({
+                  otp: userText,
+                }),
+              })
+            ).json();
+            if (!response.success) {
+              console.log("error", response.message);
+              messageContent = response.message;
+            } else {
+              messageContent = "Email verified now you can chat normally";
+              takeOTP = false;
+              takeEmail = false;
+            }
+          }
+        } else {
+          const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+          if (!emailRegex.test(userText)) {
+            messageContent = "Please enter a valid email";
+          } else {
+            const response = await (
+              await fetch(`${url}/addEmail`, {
+                method: "POST",
+                headers: {
+                  "x-api-key": api_key,
+                  "Content-Type": "application/json",
+                  "x-fingerprint": visitorId,
+                },
+                body: JSON.stringify({
+                  email: userText,
+                }),
+              })
+            ).json();
+            if (!response.success) {
+              console.log("error", response.message);
+              messageContent = response.message;
+            } else {
+              messageContent = "Check your email and enter the 5 digit otp here";
+              takeOTP = true;
+              // takeEmail = false;
+            }
+          }
+        }
+      } else {
+        const response = await (await fetch(API_URL, requestOptions)).json();
+        if (!response.success && response.data !== "Inactive limit reached" && response.data !== "Limit reached") {
+          console.log("error", response.message);
+          return;
+        }
+        if (response.success) {
+          const run = response.data;
+          messageCountText = response.messageCountText
+          document.querySelector(".remaining-text").innerHTML = `Messages remaining ${messageCountText}`
+          const { message } = await pollForCompletion(url, run, threadId, api_key);
+          messageContent = message.content;
+        } else if (response.data === "Inactive limit reached") {
+          messageContent = "Please enter your email to continue";
+          takeEmail = true;
+        } else if (response.data === "Limit reached") {
+          messageContent = "Uh oh! Looks like you have reached the message limit with Dex, want to chat more?";
+          isLimitReached = true;
+          isRequestedForIncrease = response.isRequestedForIncrease
+        }
       }
-      const run = response.data;
-      const { message } = await pollForCompletion(url, run, threadId, api_key);
-
-      const messageContent = message.content;
       responseContainer.innerHTML = marked.parse(messageContent);
+      if (isLimitReached) {
+        document.querySelector(".typing-content").style.display = "none";
+        document.querySelector(".send-btn").style.display = "none";
+        const increaseLimitBtn = document.createElement("button");
+        increaseLimitBtn.className = "increase-limit-btn";
+        increaseLimitBtn.textContent = "Request Limit Increase";
+        increaseLimitBtn.style.backgroundColor = "#5E5BE6";
+        increaseLimitBtn.style.borderRadius = "5px";
+        increaseLimitBtn.style.color = "white";
+        increaseLimitBtn.style.padding = "10px";
+        increaseLimitBtn.style.marginTop = "10px";
+        increaseLimitBtn.style.border = "none";
+        increaseLimitBtn.style.cursor = "pointer";
+        if (isRequestedForIncrease) {
+          increaseLimitBtn.textContent = "Request Sent";
+          increaseLimitBtn.disabled = true;
+          increaseLimitBtn.style.backgroundColor = "rgba(94, 91, 230, 0.21)";
+          increaseLimitBtn.style.cursor = "not-allowed";
+          increaseLimitBtn.style.border = "1px solid #5E5BE6";
+          document.querySelector(".typing-content").innerHTML = "Please check back after some time, you will get an email from us if your limit increase request gets approved";
+          document.querySelector(".typing-content").style.color = "var(--text-color)";
+          document.querySelector(".typing-content").style.fontSize = "14px";
+          document.querySelector(".typing-content").style.textAlign = "center";
+
+          document.querySelector(".typing-content").style.display = "block";
+        }
+        increaseLimitBtn.onclick = async () => {
+          increaseLimitBtn.disabled = true;
+          const response = await (
+            await fetch(`${url}/requestForIncrease`, {
+              headers: {
+                "x-api-key": api_key,
+                "Content-Type": "application/json",
+                "x-fingerprint": visitorId,
+              },
+            })
+          ).json();
+          if (!response.success) {
+            increaseLimitBtn.textContent = response.message;
+          } else {
+            increaseLimitBtn.textContent = "Request Sent";
+            document.querySelector(".typing-content").innerHTML = "Please check back after some time, you will get an email from us if your limit increase request gets approved";
+            document.querySelector(".typing-content").style.color = "var(--text-color)";
+            document.querySelector(".typing-content").style.fontSize = "14px";
+            // text center
+            document.querySelector(".typing-content").style.textAlign = "center";
+            document.querySelector(".typing-content").style.display = "block";
+          }
+          isRequestedForIncrease = true;
+          increaseLimitBtn.style.backgroundColor = "rgba(94, 91, 230, 0.21)";
+          increaseLimitBtn.style.cursor = "not-allowed";
+          increaseLimitBtn.style.border = "1px solid #5E5BE6";
+        }
+        responseContainer.appendChild(increaseLimitBtn);
+      }
 
       incomingChatDiv
         .querySelector(".chat-details")
@@ -1427,6 +1613,7 @@ xmlns="http://www.w3.org/2000/svg"
         headers: {
           "Content-Type": "application/json",
           "x-api-key": api_key,
+          "x-fingerprint": visitorId,
         },
       })
     ).json();
@@ -1435,7 +1622,6 @@ xmlns="http://www.w3.org/2000/svg"
       console.log(thread.message);
       return;
     }
-    localStorage.setItem("threadId", thread.data);
     threadId = thread.data;
     prevMessages = [];
     loadDataFromPrevMessagesArray();
