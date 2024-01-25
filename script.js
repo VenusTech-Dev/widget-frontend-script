@@ -36,10 +36,10 @@ export const initialise = async (api_key) => {
     console.log(widgetInitialise.message);
     return;
   }
-  const { position, color, size, icon } = widgetInitialise.data;
+  const { position, color, size, icon, type } = widgetInitialise.data;
   let messageCountText = widgetInitialise.data.messageCountText;
   let { threadId } = widgetInitialise.data;
-  console.log(position, color, size, icon, threadId);
+  console.log(position, color, size, icon, type, threadId);
   // let threadId = localStorage.getItem("threadId");
   // if (!threadId) {
   //   const thread = await (
@@ -204,38 +204,51 @@ export const initialise = async (api_key) => {
 <div class="chat-container"></div>
 <div class="typing-container">
   <div class="powered-container">
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 13 13"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+  <svg
+  width="12"
+  height="12"
+  viewBox="0 0 507 507"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M224.724 281.59H84.2716V337.772H224.724M224.724 169.228H84.2716V225.409H224.724M306.468 124.564L266.86 164.172L356.322 253.443L265.832 343.306L306.527 384.001L435.403 253.5M449.449 0.685059C480.629 0.685059 505.63 25.9665 505.63 56.8661V450.134C505.63 465.034 499.711 479.324 489.175 489.86C478.639 500.396 464.349 506.315 449.449 506.315H56.1811C41.2809 506.315 26.9911 500.396 16.4551 489.86C5.91907 479.324 0 465.034 0 450.134V56.8661C0 41.966 5.91907 27.6761 16.4551 17.1401C26.9911 6.60412 41.2809 0.685059 56.1811 0.685059H449.449Z"
+    fill="url(#paint0_linear_521_1286)"
+  />
+  <path
+    d="M84.2716 169.214L224.724 169.228V225.409H84.2716V169.214Z"
+    fill="#FAFAFA"
+  />
+  <path d="M84.2716 281.59H224.724V337.772H84.2716V281.59Z" fill="#FAFAFA" />
+  <path
+    d="M265.832 343.306L311.737 298.034L356.322 253.443L396.437 293.238L306.527 384.001L265.832 343.306Z"
+    fill="#FAFAFA"
+  />
+  <path
+    d="M306.468 124.564L436.549 253.761L396.437 293.238L332.291 229.602L266.86 164.172L306.468 124.564Z"
+    fill="white"
+  />
+  <defs>
+    <linearGradient
+      id="paint0_linear_521_1286"
+      x1="371.7"
+      y1="41.6004"
+      x2="629.987"
+      y2="421.795"
+      gradientUnits="userSpaceOnUse"
     >
-      <path
-        d="M5.77973 7.22027H2.17838V8.66081H5.77973M5.77973 4.33919H2.17838V5.77973H5.77973M7.87571 3.19396L6.86013 4.20954L9.15059 6.5L6.86013 8.79046L7.87571 9.81324L11.1818 6.5M11.5419 0.0175667C12.3414 0.0175667 12.9824 0.66581 12.9824 1.45811V11.5419C12.9824 11.9239 12.8307 12.2904 12.5605 12.5605C12.2904 12.8307 11.9239 12.9824 11.5419 12.9824H1.45811C1.07605 12.9824 0.709643 12.8307 0.43949 12.5605C0.169336 12.2904 0.0175647 11.9239 0.0175647 11.5419V1.45811C0.0175647 1.07605 0.169336 0.709645 0.43949 0.439491C0.709643 0.169337 1.07605 0.0175667 1.45811 0.0175667H11.5419Z"
-        fill="url(#paint0_linear_11_8)"
-      />
-      <defs>
-        <linearGradient
-          id="paint0_linear_11_8"
-          x1="12.9824"
-          y1="12.9824"
-          x2="-0.47052"
-          y2="0.73261"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stop-color="#D2934E" />
-          <stop offset="1" stop-color="#777BFA" />
-        </linearGradient>
-      </defs>
-    </svg>
+      <stop stop-color="#5F3B67" />
+      <stop offset="1" stop-color="#5E5BE6" />
+    </linearGradient>
+  </defs>
+</svg>
     <p class="powered-text">Powered by DevDex.ai</p>
   </div>
   <div class="typing-content">
     <div class="typing-textarea">
       <textarea
         id="chat-input"
-        placeholder="How to deploy my application?"
+        placeholder="How can I deploy this app?"
         spellcheck="false"
         required
       ></textarea>
@@ -307,9 +320,6 @@ export const initialise = async (api_key) => {
       </defs>
     </svg> -->
   </span>
-  <div class="remaining-message-container">
-    <p class="powered-text remaining-text">Messages remaining ${messageCountText}</p>
-  </div>
 </div>
 </div>
 </div>
@@ -412,7 +422,7 @@ body.show-chatbot .chatbot {
   overflow-y: auto;
   height: 32rem;
   width: 27rem;
-  padding-bottom: 110px;
+  padding-bottom: 114px;
 }
 
 .chat-container .chat {
@@ -567,7 +577,7 @@ span.material-symbols-rounded {
 
 .response-container {
   color: var(--text-color);
-  width: 20rem;
+  // width: 20rem;
   word-wrap: break-word;
   padding: 0 0 0 25px;
 }
@@ -576,8 +586,10 @@ span.material-symbols-rounded {
 ol {
   white-space: pre-wrap;
   color: var(--text-color);
-  word-break: break-word;
-  padding: 0 0 0 25px;
+  overflow-wrap: break-word;
+  font-size: 0.875rem;
+  line-height: 1.75rem;
+  padding: 0;
 }
 
 .response-container p {
@@ -627,21 +639,21 @@ ol {
   align-items: center;
   position: absolute;
   top: 0;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 .remaining-message-container{
   display: flex;
   align-items: center;
   position: absolute;
   bottom: 0;
-  padding: 12px 0px;
+  padding: 8px 0px 12px 0px;
 }
 
 .powered-text {
   color: var(--placeholder-color);
   padding-left: 5px;
-  font-size: small;
+  font-size: 12px;
 }
 
 .typing-container {
@@ -649,7 +661,7 @@ ol {
   bottom: 0;
   width: 100%;
   display: flex;
-  padding: 2.7rem 1.25rem 2.7rem 1.25rem;
+  padding: 2.5rem 1.25rem 1.5rem 1.25rem;
   justify-content: center;
   align-items: center;
   background: var(--outgoing-chat-bg);
@@ -735,22 +747,26 @@ ol {
 }
 
 @media (max-width: 490px) {
-  .chatbot-toggler {
-    right: 20px;
-    bottom: 20px;
+  .widget {
+    display: none;
   }
 
-  .chatbot {
-    right: 0;
-    bottom: 0;
-    height: 100%;
-    border-radius: 0;
-    width: 100%;
-  }
+  // .chatbot-toggler {
+  //   right: 20px;
+  //   bottom: 20px;
+  // }
 
-  .chatbot header span {
-    display: block;
-  }
+  // .chatbot {
+  //   right: 0;
+  //   bottom: 0;
+  //   height: 100%;
+  //   border-radius: 0;
+  //   width: 100%;
+  // }
+
+  // .chatbot header span {
+  //   display: block;
+  // }
 }
 
 .modal-backdrop {
@@ -777,6 +793,7 @@ ol {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  max-width: calc(100% - 25%);
 }
 
 .modal-open .chat-container .chat {
@@ -929,12 +946,14 @@ code {
   const closeBtn = document.querySelector(".close-btn");
   const chatInput = document.querySelector("#chat-input");
   const sendButton = document.querySelector("#send-btn");
-  const chatContainer = document.querySelector(".chat-container");
   const deleteButton = document.querySelector("#delete-btn");
   const expandBtn = document.querySelector(".expand-btn");
+  const chatContainer = document.querySelector(".chat-container");
+  const chatContent = document.querySelector(".chat");
 
   let userText = null;
   const initialInputHeight = chatInput.scrollHeight;
+  let isExpanded = false;
 
   if (icon === null || icon === "Dex") {
     chatbotToggler.style.backgroundColor = "rgba(0,0,0,0)";
@@ -951,6 +970,7 @@ code {
     Scared:
       "https://lottie.host/bc678f60-f383-41ca-bd71-094a0ac31abb/RXaqzsxdNS.json",
     Fear: "https://lottie.host/784cf22a-a966-4d03-ae0e-7ce719368b49/9sMWyJ0HQZ.json",
+    Nerd: "https://lottie.host/9ac1af7f-9d27-4c83-adbf-8d48d20993df/gN1jEA0Wcj.json",
   };
 
   const copySvg = `<svg
@@ -1208,6 +1228,20 @@ xmlns="http://www.w3.org/2000/svg"
       });
     }
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    if (chatContainer) {
+      if (size === "s" && !isExpanded) {
+        chatContainer.style.height = "32rem";
+        chatContainer.style.width = "27rem";
+      } else if (size === "l" && !isExpanded) {
+        chatContainer.style.height = "75vh";
+        chatContainer.style.width = "30vw";
+      } else if (size === "l" && isExpanded) {
+        chatContainer.style.height = "";
+        chatContainer.style.width = "";
+      }
+    } else {
+      console.error("Chat container not found in the DOM");
+    }
   };
 
   const createChatElement = (content, className) => {
@@ -1264,6 +1298,27 @@ xmlns="http://www.w3.org/2000/svg"
     return text_to_emotion.data;
   };
 
+  const changeLottieThinking = (emotion) => {
+    const newLottiePlayer = document.createElement("dotlottie-player");
+    newLottiePlayer.setAttribute("src", sentimentLottieMap[emotion]);
+    newLottiePlayer.setAttribute("background", "transparent");
+    newLottiePlayer.setAttribute("speed", "1");
+    newLottiePlayer.setAttribute("style", "width: 50px; height: 50px");
+    newLottiePlayer.setAttribute("direction", "1");
+    newLottiePlayer.setAttribute("mode", "normal");
+    newLottiePlayer.setAttribute("loop", "");
+    newLottiePlayer.setAttribute("autoplay", "");
+
+    const oldLottiePlayer = document.querySelector(
+      ".chatbot-toggler span:last-child dotlottie-player"
+    );
+    if (oldLottiePlayer) {
+      oldLottiePlayer.classList.add("fade-out");
+      oldLottiePlayer.parentNode.replaceChild(newLottiePlayer, oldLottiePlayer);
+      newLottiePlayer.classList.add("fade-in");
+    }
+  };
+
   const handleSentimentAnalysis = async (messageContent) => {
     try {
       const sentimentResponse = await analyzeSentiment(messageContent);
@@ -1309,6 +1364,7 @@ xmlns="http://www.w3.org/2000/svg"
   let isRequestedForIncrease = false;
 
   const getChatResponse = async (incomingChatDiv) => {
+    changeLottieThinking("Nerd");
     isLoading = true;
     const API_URL = `${url}/addMessageAndRun`;
     const responseContainer = document.createElement("div");
@@ -1397,9 +1453,9 @@ xmlns="http://www.w3.org/2000/svg"
         if (response.success) {
           const run = response.data;
           messageCountText = response.messageCountText;
-          document.querySelector(
-            ".remaining-text"
-          ).innerHTML = `Messages remaining ${messageCountText}`;
+          document.getElementById(
+            "chat-input"
+          ).placeholder = `Messages utilized: ${messageCountText}`;
           const { message } = await pollForCompletion(
             url,
             run,
@@ -1517,6 +1573,7 @@ xmlns="http://www.w3.org/2000/svg"
       if (typingAnimation) {
         typingAnimation.remove();
       }
+      changeLottieThinking("Happy");
     } catch (error) {
       const errorElement = document.createElement("p");
       errorElement.classList.add("error");
@@ -1526,6 +1583,16 @@ xmlns="http://www.w3.org/2000/svg"
       chatContainer.scrollTo(0, chatContainer.scrollHeight);
       isDefaultTextPresent = false;
       isLoading = false;
+      if (responseContainer) {
+        if (size === "s" && !isExpanded) {
+          responseContainer.style.width = "20rem";
+        } else if (size === "l" && !isExpanded) {
+          responseContainer.style.width = "24vw";
+          chatContent.style.width = "24vw";
+        }
+      } else {
+        console.error("Chat container not found in the DOM");
+      }
     }
   };
 
@@ -1682,8 +1749,6 @@ xmlns="http://www.w3.org/2000/svg"
     }
   };
 
-  let isExpanded = false;
-
   expandBtn.addEventListener("click", () => {
     isExpanded = !isExpanded;
     expandBtn.innerHTML = isExpanded ? minimizeSvg : expandSvg;
@@ -1691,6 +1756,15 @@ xmlns="http://www.w3.org/2000/svg"
 
     if (isExpanded) {
       modalBackdrop.addEventListener("click", handleClickOutside);
+      if (size === "l" && isExpanded) {
+        chatContainer.style.height = "";
+        chatContainer.style.width = "";
+        responseContainer.style.width = "";
+      } else if (size === "s" && isExpanded) {
+        chatContainer.style.height = "";
+        chatContainer.style.width = "";
+        responseContainer.style.width = "";
+      }
     } else {
       modalBackdrop.removeEventListener("click", handleClickOutside);
     }
