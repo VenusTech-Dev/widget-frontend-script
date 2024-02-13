@@ -36,7 +36,8 @@ export const initialise = async (api_key) => {
     console.log(widgetInitialise.message);
     return;
   }
-  const { position, color, size, icon, type } = widgetInitialise.data;
+  const { position, color, size, icon } = widgetInitialise.data;
+  let type = "dex";
   let messageCountText = widgetInitialise.data.messageCountText;
   let { threadId } = widgetInitialise.data;
   console.log(position, color, size, icon, type, threadId);
@@ -353,12 +354,12 @@ export const initialise = async (api_key) => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background-color: var(--prime);
-  transition: all 0.2s ease;
+  background-color: rgba(0,0,0,0);
+  transition: all 0.2s ease-in-out;
 }
 
 .entire-chatbot {
-  z-index: 1010;
+  z-index: 10010;
 }
 
 body.show-chatbot .chatbot-toggler {
@@ -399,13 +400,14 @@ body.show-chatbot .chatbot-toggler span:last-child {
   pointer-events: none;
   transform: scale(0.5);
   transform-origin: bottom ${position};
-  transition: all 0.1s ease;
+  transition: opacity 0.3s ease-in-out;
 }
 
 body.show-chatbot .chatbot {
   opacity: 1;
   pointer-events: auto;
   transform: scale(1);
+  transition: transform 0.2s ease-in-out
 }
 
 .chatbot header {
@@ -422,7 +424,7 @@ body.show-chatbot .chatbot {
   overflow-y: auto;
   height: 32rem;
   width: 27rem;
-  padding-bottom: 114px;
+  padding-bottom: 113px;
 }
 
 .chat-container .chat {
@@ -577,7 +579,6 @@ span.material-symbols-rounded {
 
 .response-container {
   color: var(--text-color);
-  // width: 20rem;
   word-wrap: break-word;
   padding: 0 0 0 25px;
 }
@@ -588,8 +589,16 @@ ol {
   color: var(--text-color);
   overflow-wrap: break-word;
   font-size: 0.875rem;
-  line-height: 1.75rem;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.75em;
+  margin-bottom: 1em;
+}
+
+.response-container ul>li, ol>li {
+  padding-top: 4px;
+  min-height: 28px;
 }
 
 .response-container p {
@@ -747,26 +756,50 @@ ol {
 }
 
 @media (max-width: 490px) {
-  .widget {
+  // .widget {
+  //   display: none;
+  // }
+
+  .chatbot-toggler {
+    right: 20px;
+    bottom: 20px;
+  }
+
+  .chatbot.open {
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-radius: 0;
+    width: 100%;
+  }
+
+  body.show-chatbot .chatbot.semi-closed {
+    transform: scale(0.75);
+    right: 1.5rem;
+    bottom: 5rem;
+  }
+
+  body.show-chatbot .chatbot {
+    position: absolute;
+    z-index: 10000;
+  }
+
+  .chatbot.open .chat-container {
+    height: 93%;
+    width: auto;
+  }
+
+  .expand-btn {
     display: none;
   }
 
-  // .chatbot-toggler {
-  //   right: 20px;
-  //   bottom: 20px;
-  // }
+  header p {
+    padding-left: 0;
+  }
 
-  // .chatbot {
-  //   right: 0;
-  //   bottom: 0;
-  //   height: 100%;
-  //   border-radius: 0;
-  //   width: 100%;
-  // }
-
-  // .chatbot header span {
-  //   display: block;
-  // }
+  .chat .chat-content span {
+    display: none;
+  }
 }
 
 .modal-backdrop {
@@ -779,7 +812,7 @@ ol {
   height: 100vh;
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(5px);
-  z-index: 1000;
+  z-index: 10000;
   display: none;
 }
 
@@ -789,7 +822,7 @@ ol {
   bottom: 4%;
   left: 25%;
   right: 25%;
-  z-index: 1010;
+  z-index: 10010;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -921,6 +954,18 @@ code {
 @keyframes fadeInAnimation {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+.chatbot.expanded {
+  animation: fadeInAnimation 0.2s ease-in-out forwards;
+}
+
+.chatbot.collapsed {
+  animation: fadeOutAnimation 0.2s ease-in-out forwards;
+}
+
+.chatbot.close {
+  display: none;
 }`;
 
   document.body.insertAdjacentHTML("beforeend", widgetHTML);
@@ -955,10 +1000,40 @@ code {
   const initialInputHeight = chatInput.scrollHeight;
   let isExpanded = false;
 
-  if (icon === null || icon === "Dex") {
-    chatbotToggler.style.backgroundColor = "rgba(0,0,0,0)";
-  } else {
-    chatbotToggler.style.backgroundColor = `var(--prime)`;
+  let chatbotIconUrl;
+  if (icon === null && type !== null) {
+    if (type === "dex") {
+      chatbotToggler.style.backgroundColor = "rgba(0,0,0,0)";
+    } else if (type === "robot") {
+      chatbotToggler.style.backgroundColor = `var(--prime)`;
+
+      const lottiePlayers = chatbotToggler.querySelectorAll("dotlottie-player");
+      lottiePlayers.forEach((player) => player.remove());
+
+      const newLottiePlayer = document.createElement("dotlottie-player");
+      newLottiePlayer.setAttribute(
+        "src",
+        "https://lottie.host/470142a6-196d-49dc-aeb6-1e5b73df327a/4lmfN0pVBW.json"
+      );
+      newLottiePlayer.setAttribute("background", "transparent");
+      newLottiePlayer.setAttribute("speed", "1");
+      newLottiePlayer.setAttribute("style", "width: 50px; height: 50px");
+      newLottiePlayer.setAttribute("direction", "1");
+      newLottiePlayer.setAttribute("mode", "normal");
+      newLottiePlayer.setAttribute("loop", "");
+      newLottiePlayer.setAttribute("autoplay", "");
+
+      chatbotToggler.appendChild(newLottiePlayer);
+    }
+  } else if (icon !== null) {
+    chatbotIconUrl = icon;
+    console.log(chatbotIconUrl);
+    const lottiePlayers = chatbotToggler.querySelectorAll("dotlottie-player");
+    lottiePlayers.forEach((player) => (player.style.display = "none"));
+
+    chatbotToggler.style.background = `url(${chatbotIconUrl})`;
+    chatbotToggler.style.backgroundSize = "cover";
+    chatbotToggler.style.backgroundPosition = "center";
   }
 
   const sentimentLottieMap = {
@@ -1229,15 +1304,20 @@ xmlns="http://www.w3.org/2000/svg"
     }
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
     if (chatContainer) {
-      if (size === "s" && !isExpanded) {
-        chatContainer.style.height = "32rem";
-        chatContainer.style.width = "27rem";
-      } else if (size === "l" && !isExpanded) {
-        chatContainer.style.height = "75vh";
-        chatContainer.style.width = "30vw";
-      } else if (size === "l" && isExpanded) {
-        chatContainer.style.height = "";
-        chatContainer.style.width = "";
+      if (window.innerWidth <= 490) {
+        chatContainer.style.height = "93%";
+        chatContainer.style.width = "auto";
+      } else if (window.innerWidth > 490) {
+        if (size === "s" && !isExpanded) {
+          chatContainer.style.height = "32rem";
+          chatContainer.style.width = "27rem";
+        } else if (size === "l" && !isExpanded) {
+          chatContainer.style.height = "75vh";
+          chatContainer.style.width = "30vw";
+        } else if (size === "l" && isExpanded) {
+          chatContainer.style.height = "";
+          chatContainer.style.width = "";
+        }
       }
     } else {
       console.error("Chat container not found in the DOM");
@@ -1364,7 +1444,9 @@ xmlns="http://www.w3.org/2000/svg"
   let isRequestedForIncrease = false;
 
   const getChatResponse = async (incomingChatDiv) => {
-    changeLottieThinking("Nerd");
+    if (type === "dex") {
+      changeLottieThinking("Nerd");
+    }
     isLoading = true;
     const API_URL = `${url}/addMessageAndRun`;
     const responseContainer = document.createElement("div");
@@ -1372,7 +1454,7 @@ xmlns="http://www.w3.org/2000/svg"
     const requestOptions = {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         "x-api-key": api_key,
       },
       body: JSON.stringify({
@@ -1411,6 +1493,15 @@ xmlns="http://www.w3.org/2000/svg"
               takeEmail = false;
             }
           }
+          incomingChatDiv
+            .querySelector(".chat-details")
+            .appendChild(responseContainer);
+          responseContainer.innerHTML = marked.parse(messageContent);
+          const typingAnimation =
+            incomingChatDiv.querySelector(".typing-animation");
+          if (typingAnimation) {
+            typingAnimation.remove();
+          }
         } else {
           const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
           if (!emailRegex.test(userText)) {
@@ -1439,41 +1530,105 @@ xmlns="http://www.w3.org/2000/svg"
               // takeEmail = false;
             }
           }
+          incomingChatDiv
+            .querySelector(".chat-details")
+            .appendChild(responseContainer);
+          responseContainer.innerHTML = marked.parse(messageContent);
+          const typingAnimation =
+            incomingChatDiv.querySelector(".typing-animation");
+          if (typingAnimation) {
+            typingAnimation.remove();
+          }
         }
       } else {
-        const response = await (await fetch(API_URL, requestOptions)).json();
-        if (
-          !response.success &&
-          response.data !== "Inactive limit reached" &&
-          response.data !== "Limit reached"
-        ) {
-          console.log("error", response.message);
-          return;
+        const response = await fetch(API_URL, requestOptions);
+        incomingChatDiv
+          .querySelector(".chat-details")
+          .appendChild(responseContainer);
+        const typingAnimation =
+          incomingChatDiv.querySelector(".typing-animation");
+        if (typingAnimation) {
+          typingAnimation.remove();
         }
-        if (response.success) {
-          const run = response.data;
-          messageCountText = response.messageCountText;
-          document.getElementById(
-            "chat-input"
-          ).placeholder = `Messages utilized: ${messageCountText}`;
-          const { message } = await pollForCompletion(
-            url,
-            run,
-            threadId,
-            api_key
-          );
-          messageContent = message.content;
-        } else if (response.data === "Inactive limit reached") {
-          messageContent = "Please enter your email to continue";
-          takeEmail = true;
-        } else if (response.data === "Limit reached") {
-          messageContent =
-            "Uh oh! Looks like you have reached the message limit with Dex, want to chat more?";
-          isLimitReached = true;
-          isRequestedForIncrease = response.isRequestedForIncrease;
+        let buffer = '';
+        let message = '';
+        if (!response.ok) {
+          const data = await response.json();
+          message += data.data;
+          if (data.data === "Inactive limit reached") {
+            responseContainer.innerHTML = marked.parse("Please enter your email to continue");
+            message = "Please enter your email to continue";
+            takeEmail = true;
+          }
+        } else {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+
+            let eolIndex;
+            while ((eolIndex = buffer.indexOf('\n\n')) >= 0) {
+              const line = buffer.slice(0, eolIndex).trim();
+              buffer = buffer.slice(eolIndex + 2);
+              if (line.startsWith('data: ')) {
+                const data = JSON.parse(line.substring(5));
+                if (data.response) {
+                  message += data.response;
+                  responseContainer.innerHTML = marked.parse(message);
+                  chatContainer.scrollTo(0, chatContainer.scrollHeight);
+                }
+              }
+            }
+          }
+          await (await fetch(`${url}/addAssistantMessage`, {
+            method: "POST",
+            headers: {
+              "x-api-key": api_key,
+              "Content-Type": "application/json",
+              "x-fingerprint": visitorId,
+            },
+            body: JSON.stringify({
+              message: message,
+              threadId: threadId,
+            }),
+          })).json();
         }
+        console.log(message);
+        // if (
+        //   !response.success &&
+        //   response.data !== "Inactive limit reached" &&
+        //   response.data !== "Limit reached"
+        // ) {
+        //   console.log("error", response.message);
+        //   return;
+        // }
+        // if (response.success) {
+        //   const run = response.data;
+        //   messageCountText = response.messageCountText;
+        //   document.getElementById(
+        //     "chat-input"
+        //   ).placeholder = `Messages utilized: ${messageCountText}`;
+        //   const { message } = await pollForCompletion(
+        //     url,
+        //     run,
+        //     threadId,
+        //     api_key
+        //   );
+        //   messageContent = message.content;
+        // } else if (response.data === "Inactive limit reached") {
+        //   messageContent = "Please enter your email to continue";
+        //   takeEmail = true;
+        // } else if (response.data === "Limit reached") {
+        //   messageContent =
+        //     "Uh oh! Looks like you have reached the message limit with Dex, want to chat more?";
+        //   isLimitReached = true;
+        //   isRequestedForIncrease = response.isRequestedForIncrease;
+        // }
       }
-      responseContainer.innerHTML = marked.parse(messageContent);
+
       if (isLimitReached) {
         document.querySelector(".typing-content").style.display = "none";
         document.querySelector(".send-btn").style.display = "none";
@@ -1535,9 +1690,6 @@ xmlns="http://www.w3.org/2000/svg"
         responseContainer.appendChild(increaseLimitBtn);
       }
 
-      incomingChatDiv
-        .querySelector(".chat-details")
-        .appendChild(responseContainer);
 
       const codeBlocks = responseContainer.querySelectorAll("pre code");
       codeBlocks.forEach((codeBlock) => {
@@ -1568,13 +1720,11 @@ xmlns="http://www.w3.org/2000/svg"
 
       handleSentimentAnalysis(messageContent);
 
-      const typingAnimation =
-        incomingChatDiv.querySelector(".typing-animation");
-      if (typingAnimation) {
-        typingAnimation.remove();
+      if (type === "dex") {
+        changeLottieThinking("Happy");
       }
-      changeLottieThinking("Happy");
     } catch (error) {
+      console.error("Error while fetching chat response", error);
       const errorElement = document.createElement("p");
       errorElement.classList.add("error");
       errorElement.textContent = "Something went wrong! Please try again.";
@@ -1732,11 +1882,13 @@ xmlns="http://www.w3.org/2000/svg"
 
   const handleCloseChatbot = () => {
     document.body.classList.remove("show-chatbot");
+    const chatbot = document.querySelector(".chatbot");
     if (isExpanded) {
       isExpanded = false;
       expandBtn.innerHTML = expandSvg;
       if (document.body.classList.contains("modal-open")) {
         document.body.classList.remove("modal-open");
+        chatbot.classList.remove("expanded");
       }
     }
   };
@@ -1746,6 +1898,7 @@ xmlns="http://www.w3.org/2000/svg"
   const handleClickOutside = (event) => {
     if (isExpanded && !chatContainer.contains(event.target)) {
       handleCloseChatbot();
+      manageChatbotState("close");
     }
   };
 
@@ -1753,20 +1906,33 @@ xmlns="http://www.w3.org/2000/svg"
     isExpanded = !isExpanded;
     expandBtn.innerHTML = isExpanded ? minimizeSvg : expandSvg;
     document.body.classList.toggle("modal-open");
+    const chatbot = document.querySelector(".chatbot");
+    chatbot.classList.toggle("expanded");
 
     if (isExpanded) {
       modalBackdrop.addEventListener("click", handleClickOutside);
+      chatbot.classList.add("expanded");
+      chatbot.classList.remove("collapsed");
+      const responseContainers = document.querySelectorAll(
+        ".response-container"
+      );
       if (size === "l" && isExpanded) {
         chatContainer.style.height = "";
         chatContainer.style.width = "";
-        responseContainer.style.width = "";
+        responseContainers.forEach((container) => {
+          container.style.width = isExpanded ? "" : "24vw";
+        });
       } else if (size === "s" && isExpanded) {
         chatContainer.style.height = "";
         chatContainer.style.width = "";
-        responseContainer.style.width = "";
+        responseContainers.forEach((container) => {
+          container.style.width = isExpanded ? "" : "20rem";
+        });
       }
     } else {
       modalBackdrop.removeEventListener("click", handleClickOutside);
+      // chatbot.classList.add("collapsed");
+      chatbot.classList.remove("expanded");
     }
   });
 
@@ -1789,7 +1955,7 @@ xmlns="http://www.w3.org/2000/svg"
     manageChatbotState("semi-closed");
     document.body.classList.add("show-chatbot");
   } else {
-    manageChatbotState("open");
+    manageChatbotState("close");
   }
 
   closeBtn.addEventListener("click", () => {
