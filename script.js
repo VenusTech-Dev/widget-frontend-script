@@ -36,8 +36,8 @@ export const initialise = async (api_key) => {
     console.log(widgetInitialise.message);
     return;
   }
-  const { position, color, size, icon } = widgetInitialise.data;
-  let type = "dex";
+  const { position, color, size, icon, type } = widgetInitialise.data;
+  // let type = "dex";
   let messageCountText = widgetInitialise.data.messageCountText;
   let { threadId } = widgetInitialise.data;
   console.log(position, color, size, icon, type, threadId);
