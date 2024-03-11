@@ -990,7 +990,11 @@ code {
 
 .chatbot.close {
   display: none;
-}`
+}
+.response-container a {
+  color: #2c8bd3;
+}
+`
 
   document.body.insertAdjacentHTML("beforeend", widgetHTML)
 
