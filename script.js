@@ -1552,9 +1552,9 @@ xmlns="http://www.w3.org/2000/svg"
               console.log("error", response.message)
               messageContent = response.message
             } else {
-              messageContent = "Check your email and enter the 5 digit otp here"
-              takeOTP = true
-              // takeEmail = false;
+              messageContent = "Email verified now you can chat normally"
+              // takeOTP = true
+              takeEmail = false;
             }
           }
           incomingChatDiv
