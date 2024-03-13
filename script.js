@@ -804,8 +804,10 @@ ol {
   }
 
   body.show-chatbot .chatbot {
-    position: absolute;
+    // position: absolute;
     z-index: 10000;
+    height: 100vh;
+    width: 100%;
   }
 
   .chatbot.open .chat-container {
@@ -1980,7 +1982,7 @@ xmlns="http://www.w3.org/2000/svg"
   }
 
   chatContainer.scrollTo(0, chatContainer.scrollHeight)
-  if (isDefaultTextPresent) {
+  if (isDefaultTextPresent && window.matchMedia("(min-width: 768px)").matches) {
     manageChatbotState("semi-closed")
     document.body.classList.add("show-chatbot")
   } else {
@@ -1999,7 +2001,7 @@ xmlns="http://www.w3.org/2000/svg"
     document.body.classList.toggle("show-chatbot")
     const chatbot = document.querySelector(".chatbot")
     if (chatbot.classList.contains("close")) {
-      if (isDefaultTextPresent) {
+      if (isDefaultTextPresent && window.matchMedia("(min-width: 768px)").matches) {
         manageChatbotState("semi-closed")
       } else {
         manageChatbotState("open")
