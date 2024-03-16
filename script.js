@@ -553,6 +553,7 @@ span.material-symbols-rounded {
 .chat .chat-details {
   display: flex;
   align-items: center;
+  width: 95%;
 }
 
 .chat .chat-details svg {
@@ -580,6 +581,7 @@ span.material-symbols-rounded {
   color: var(--text-color);
   word-wrap: break-word;
   padding: 0 0 0 25px;
+  overflow: auto;
 }
 
 .response-container > ul,
