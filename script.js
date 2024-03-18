@@ -1897,6 +1897,16 @@ xmlns="http://www.w3.org/2000/svg"
     chatInput.style.height = `${initialInputHeight}px`
     chatInput.style.height = `${chatInput.scrollHeight}px`
   })
+  const viewportMeta = document.querySelector('meta[name="viewport"]');
+  const originalContent = viewportMeta.getAttribute('content');
+
+  chatInput.addEventListener("click", () => {
+    const content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
+    viewportMeta.setAttribute('content', content);
+  })
+  chatInput.addEventListener("blur", () => {
+    viewportMeta.setAttribute('content', originalContent);
+  })
 
   chatInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
