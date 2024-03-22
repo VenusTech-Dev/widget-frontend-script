@@ -1,24 +1,25 @@
-import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js"
-import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js"
+import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js";
 
 export const initialise = async (api_key) => {
-  const FingerprintJS = await import("https://openfpcdn.io/fingerprintjs/v4")
+  const FingerprintJS = await import("https://openfpcdn.io/fingerprintjs/v4");
   async function getVisitorId() {
     // Load FingerprintJS
-    const fp = await FingerprintJS.load()
+    const fp = await FingerprintJS.load();
 
     // Get the visitor identifier
-    const result = await fp.get()
+    const result = await fp.get();
 
     // This is the visitor identifier:
-    const visitorId = result.visitorId
+    const visitorId = result.visitorId;
 
     // Return the visitorId if needed
-    return visitorId
+    return visitorId;
   }
-  const visitorId = await getVisitorId()
-  console.log(visitorId)
-  const url = "https://dev-dex-widget-backend-6bc8bcc9eb98.herokuapp.com/api/v1"
+  const visitorId = await getVisitorId();
+  console.log(visitorId);
+  const url =
+    "https://dev-dex-widget-backend-6bc8bcc9eb98.herokuapp.com/api/v1";
   // const url = "http://localhost:4000/api/v1";
   const widgetInitialise = await (
     await fetch(`${url}/initialise`, {
@@ -29,17 +30,17 @@ export const initialise = async (api_key) => {
         "x-fingerprint": visitorId,
       },
     })
-  ).json()
-  console.log(widgetInitialise)
+  ).json();
+  console.log(widgetInitialise);
   if (!widgetInitialise.success) {
-    console.log(widgetInitialise.message)
-    return
+    console.log(widgetInitialise.message);
+    return;
   }
-  const { position, color, size, icon, type } = widgetInitialise.data
+  const { position, color, size, icon, type } = widgetInitialise.data;
   // let type = "dex";
-  let messageCountText = widgetInitialise.data.messageCountText
-  let { threadId } = widgetInitialise.data
-  console.log(position, color, size, icon, type, threadId)
+  let messageCountText = widgetInitialise.data.messageCountText;
+  let { threadId } = widgetInitialise.data;
+  console.log(position, color, size, icon, type, threadId);
   // let threadId = localStorage.getItem("threadId");
   // if (!threadId) {
   //   const thread = await (
@@ -59,9 +60,9 @@ export const initialise = async (api_key) => {
   //   localStorage.setItem("threadId", thread.data);
   //   threadId = thread.data;
   // }
-  let isLoading = false
-  let takeEmail = false
-  let takeOTP = false
+  let isLoading = false;
+  let takeEmail = false;
+  let takeOTP = false;
   const getMessages = await (
     await fetch(`${url}/getMessages?threadId=${threadId}`, {
       method: "GET",
@@ -70,11 +71,11 @@ export const initialise = async (api_key) => {
         "x-api-key": api_key,
       },
     })
-  ).json()
+  ).json();
   if (!getMessages.success) {
-    return
+    return;
   }
-  let prevMessages = getMessages.data
+  let prevMessages = getMessages.data;
   const widgetHTML = `<div class="widget">
 <button class="chatbot-toggler">
 <span>
@@ -323,7 +324,7 @@ export const initialise = async (api_key) => {
 </div>
 </div>
 </div>
-</div>`
+</div>`;
 
   const widgetCSS = `@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap");
 
@@ -808,7 +809,7 @@ ol {
   body.show-chatbot .chatbot {
     // position: absolute;
     z-index: 10000;
-    height: 100vh;
+    height: 100%;
     width: 100%;
   }
 
@@ -827,6 +828,11 @@ ol {
 
   .chat .chat-content span {
     display: none;
+  }
+
+  .typing-textarea textarea {
+    font-size: 16px;
+    padding: 12.5px 45px 12.5px 20px;
   }
 }
 
@@ -998,74 +1004,73 @@ code {
 .response-container a {
   color: #2c8bd3;
 }
-`
+`;
 
-  document.body.insertAdjacentHTML("beforeend", widgetHTML)
+  document.body.insertAdjacentHTML("beforeend", widgetHTML);
 
-  const lottieScript = document.createElement("script")
-  lottieScript.type = "module"
+  const lottieScript = document.createElement("script");
+  lottieScript.type = "module";
   lottieScript.src =
-    "https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
+    "https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs";
 
-  document.body.appendChild(lottieScript)
+  document.body.appendChild(lottieScript);
 
-  const styleSheet = document.createElement("style")
-  styleSheet.innerText = widgetCSS
-  document.head.appendChild(styleSheet)
+  const styleSheet = document.createElement("style");
+  styleSheet.innerText = widgetCSS;
+  document.head.appendChild(styleSheet);
 
-  const highlightStyle = document.createElement("link")
-  highlightStyle.rel = "stylesheet"
+  const highlightStyle = document.createElement("link");
+  highlightStyle.rel = "stylesheet";
   highlightStyle.href =
-    "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/tokyo-night-dark.css"
-  document.head.appendChild(highlightStyle)
+    "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/tokyo-night-dark.css";
+  document.head.appendChild(highlightStyle);
 
-  const chatbotToggler = document.querySelector(".chatbot-toggler")
-  const closeBtn = document.querySelector(".close-btn")
-  const chatInput = document.querySelector("#chat-input")
-  const sendButton = document.querySelector("#send-btn")
-  const deleteButton = document.querySelector("#delete-btn")
-  const expandBtn = document.querySelector(".expand-btn")
-  const chatContainer = document.querySelector(".chat-container")
-  const chatContent = document.querySelector(".chat")
+  const chatbotToggler = document.querySelector(".chatbot-toggler");
+  const closeBtn = document.querySelector(".close-btn");
+  const chatInput = document.querySelector("#chat-input");
+  const sendButton = document.querySelector("#send-btn");
+  const deleteButton = document.querySelector("#delete-btn");
+  const expandBtn = document.querySelector(".expand-btn");
+  const chatContainer = document.querySelector(".chat-container");
 
-  let userText = null
-  const initialInputHeight = chatInput.scrollHeight
-  let isExpanded = false
+  let userText = null;
+  const initialInputHeight = chatInput.scrollHeight;
+  let isExpanded = false;
 
-  let chatbotIconUrl
+  let chatbotIconUrl;
   if (icon === null && type !== null) {
     if (type === "dex") {
-      chatbotToggler.style.backgroundColor = "rgba(0,0,0,0)"
+      chatbotToggler.style.backgroundColor = "rgba(0,0,0,0)";
     } else if (type === "robot") {
-      chatbotToggler.style.backgroundColor = `var(--prime)`
+      chatbotToggler.style.backgroundColor = `var(--prime)`;
 
-      const lottiePlayers = chatbotToggler.querySelectorAll("dotlottie-player")
-      lottiePlayers.forEach((player) => player.remove())
+      const lottiePlayers = chatbotToggler.querySelectorAll("dotlottie-player");
+      lottiePlayers.forEach((player) => player.remove());
 
-      const newLottiePlayer = document.createElement("dotlottie-player")
+      const newLottiePlayer = document.createElement("dotlottie-player");
       newLottiePlayer.setAttribute(
         "src",
         "https://lottie.host/470142a6-196d-49dc-aeb6-1e5b73df327a/4lmfN0pVBW.json"
-      )
-      newLottiePlayer.setAttribute("background", "transparent")
-      newLottiePlayer.setAttribute("speed", "1")
-      newLottiePlayer.setAttribute("style", "width: 50px; height: 50px")
-      newLottiePlayer.setAttribute("direction", "1")
-      newLottiePlayer.setAttribute("mode", "normal")
-      newLottiePlayer.setAttribute("loop", "")
-      newLottiePlayer.setAttribute("autoplay", "")
+      );
+      newLottiePlayer.setAttribute("background", "transparent");
+      newLottiePlayer.setAttribute("speed", "1");
+      newLottiePlayer.setAttribute("style", "width: 50px; height: 50px");
+      newLottiePlayer.setAttribute("direction", "1");
+      newLottiePlayer.setAttribute("mode", "normal");
+      newLottiePlayer.setAttribute("loop", "");
+      newLottiePlayer.setAttribute("autoplay", "");
 
-      chatbotToggler.appendChild(newLottiePlayer)
+      chatbotToggler.appendChild(newLottiePlayer);
     }
   } else if (icon !== null) {
-    chatbotIconUrl = icon
-    console.log(chatbotIconUrl)
-    const lottiePlayers = chatbotToggler.querySelectorAll("dotlottie-player")
-    lottiePlayers.forEach((player) => (player.style.display = "none"))
+    chatbotIconUrl = icon;
+    console.log(chatbotIconUrl);
+    const lottiePlayers = chatbotToggler.querySelectorAll("dotlottie-player");
+    lottiePlayers.forEach((player) => (player.style.display = "none"));
 
-    chatbotToggler.style.background = `url(${chatbotIconUrl})`
-    chatbotToggler.style.backgroundSize = "cover"
-    chatbotToggler.style.backgroundPosition = "center"
+    chatbotToggler.style.background = `url(${chatbotIconUrl})`;
+    chatbotToggler.style.backgroundSize = "cover";
+    chatbotToggler.style.backgroundPosition = "center";
   }
 
   const sentimentLottieMap = {
@@ -1078,7 +1083,7 @@ code {
       "https://lottie.host/bc678f60-f383-41ca-bd71-094a0ac31abb/RXaqzsxdNS.json",
     Fear: "https://lottie.host/784cf22a-a966-4d03-ae0e-7ce719368b49/9sMWyJ0HQZ.json",
     Nerd: "https://lottie.host/9ac1af7f-9d27-4c83-adbf-8d48d20993df/gN1jEA0Wcj.json",
-  }
+  };
 
   const copySvg = `<svg
 width="16"
@@ -1093,7 +1098,7 @@ xmlns="http://www.w3.org/2000/svg"
   stroke-linecap="round"
   stroke-linejoin="round"
 />
-</svg>`
+</svg>`;
 
   const checkSvg = `<svg
 width="16"
@@ -1108,7 +1113,7 @@ xmlns="http://www.w3.org/2000/svg"
   stroke-linecap="round"
   stroke-linejoin="round"
 />
-</svg>`
+</svg>`;
 
   const minimizeSvg = `<svg
 width="21"
@@ -1123,7 +1128,7 @@ xmlns="http://www.w3.org/2000/svg"
   stroke-linecap="round"
   stroke-linejoin="round"
 />
-</svg>`
+</svg>`;
 
   const expandSvg = `<svg
 width="21"
@@ -1160,7 +1165,7 @@ xmlns="http://www.w3.org/2000/svg"
   stroke-linecap="round"
   stroke-linejoin="round"
 />
-</svg>`
+</svg>`;
 
   const defaultText = `<div class="chat incoming">
   <div class="chat-content">
@@ -1209,13 +1214,14 @@ xmlns="http://www.w3.org/2000/svg"
     </div>
   </div>
 </div>
-`
-  let isDefaultTextPresent = false
+`;
+
+  let isDefaultTextPresent = false;
 
   const loadDataFromPrevMessagesArray = () => {
     if (prevMessages.length === 0) {
-      chatContainer.innerHTML = defaultText
-      isDefaultTextPresent = true
+      chatContainer.innerHTML = defaultText;
+      isDefaultTextPresent = true;
     } else {
       prevMessages.forEach((prevMessage) => {
         if (prevMessage.role === "user") {
@@ -1227,10 +1233,10 @@ xmlns="http://www.w3.org/2000/svg"
                       </svg>
                           <p>${prevMessage.content}</p>
                       </div>
-                  </div>`
-          const outgoingChatDiv = createChatElement(html, "outgoing")
-          chatContainer.querySelector(".default-text")?.remove()
-          chatContainer.appendChild(outgoingChatDiv)
+                  </div>`;
+          const outgoingChatDiv = createChatElement(html, "outgoing");
+          chatContainer.querySelector(".default-text")?.remove();
+          chatContainer.appendChild(outgoingChatDiv);
         } else if (prevMessage.role === "assistant") {
           const html = `<div class="chat-content">
                     <div class="chat-details">
@@ -1281,87 +1287,89 @@ xmlns="http://www.w3.org/2000/svg"
                     </div>
                 </div>
                 <span >${copySvg}</span>
-            </div>`
-          const incomingChatDiv = createChatElement(html, "incoming")
-          chatContainer.appendChild(incomingChatDiv)
+            </div>`;
+          const incomingChatDiv = createChatElement(html, "incoming");
+          chatContainer.appendChild(incomingChatDiv);
 
-          const copyButton = incomingChatDiv.querySelector("span")
-          copyButton.addEventListener("click", () => copyResponse(copyButton))
+          const copyButton = incomingChatDiv.querySelector("span");
+          copyButton.addEventListener("click", () => copyResponse(copyButton));
 
-          const responseContainer = document.createElement("div")
-          responseContainer.classList.add("response-container")
+          const responseContainer = document.createElement("div");
+          responseContainer.classList.add("response-container");
 
-          responseContainer.innerHTML = marked.parse(prevMessage.content)
+          responseContainer.innerHTML = marked.parse(prevMessage.content);
 
           incomingChatDiv
             .querySelector(".chat-details")
-            .appendChild(responseContainer)
+            .appendChild(responseContainer);
 
-          const codeBlocks = responseContainer.querySelectorAll("pre code")
+          const codeBlocks = responseContainer.querySelectorAll("pre code");
           codeBlocks.forEach((codeBlock) => {
-            hljs.highlightElement(codeBlock)
+            hljs.highlightElement(codeBlock);
 
-            const languageMatch = codeBlock.className.match(/language-(\w+)/)
+            const languageMatch = codeBlock.className.match(/language-(\w+)/);
             if (languageMatch) {
-              const language = languageMatch[1]
+              const language = languageMatch[1];
 
-              const headerDiv = document.createElement("div")
-              headerDiv.className = "code-header"
-              headerDiv.textContent = `${language}`
+              const headerDiv = document.createElement("div");
+              headerDiv.className = "code-header";
+              headerDiv.textContent = `${language}`;
 
-              const copyBtn = document.createElement("button")
-              copyBtn.className = "copy-code-btn"
-              copyBtn.textContent = "Copy"
+              const copyBtn = document.createElement("button");
+              copyBtn.className = "copy-code-btn";
+              copyBtn.textContent = "Copy";
               copyBtn.onclick = () => {
                 navigator.clipboard
                   .writeText(codeBlock.textContent)
                   .then(() => {
-                    copyBtn.textContent = "Copied!"
-                    setTimeout(() => (copyBtn.textContent = "Copy"), 1500)
-                  })
-              }
+                    copyBtn.textContent = "Copied!";
+                    setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
+                  });
+              };
 
-              codeBlock.parentNode.insertBefore(headerDiv, codeBlock)
-              headerDiv.appendChild(copyBtn)
+              codeBlock.parentNode.insertBefore(headerDiv, codeBlock);
+              headerDiv.appendChild(copyBtn);
             }
-          })
+          });
 
           const typingAnimation =
-            incomingChatDiv.querySelector(".typing-animation")
+            incomingChatDiv.querySelector(".typing-animation");
           if (typingAnimation) {
-            typingAnimation.remove()
+            typingAnimation.remove();
           }
         }
-      })
+      });
     }
-    chatContainer.scrollTo(0, chatContainer.scrollHeight)
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
     if (chatContainer) {
       if (window.innerWidth <= 490) {
-        chatContainer.style.height = "93%"
-        chatContainer.style.width = "auto"
+        chatContainer.style.height = "93%";
+        chatContainer.style.width = "auto";
       } else if (window.innerWidth > 490) {
         if (size === "s" && !isExpanded) {
-          chatContainer.style.height = "32rem"
-          chatContainer.style.width = "27rem"
-        } else if (size === "l" && !isExpanded) {
-          chatContainer.style.height = "75vh"
-          chatContainer.style.width = "30vw"
-        } else if (size === "l" && isExpanded) {
-          chatContainer.style.height = ""
-          chatContainer.style.width = ""
+          chatContainer.style.height = "32rem";
+          chatContainer.style.width = "27rem";
+        } else if (size === "l") {
+          if (!isExpanded) {
+            chatContainer.style.height = "75vh";
+            chatContainer.style.width = "30vw";
+          } else {
+            chatContainer.style.height = "";
+            chatContainer.style.width = "";
+          }
         }
       }
     } else {
-      console.error("Chat container not found in the DOM")
+      console.error("Chat container not found in the DOM");
     }
-  }
+  };
 
   const createChatElement = (content, className) => {
-    const chatDiv = document.createElement("div")
-    chatDiv.classList.add("chat", className)
-    chatDiv.innerHTML = content
-    return chatDiv
-  }
+    const chatDiv = document.createElement("div");
+    chatDiv.classList.add("chat", className);
+    chatDiv.innerHTML = content;
+    return chatDiv;
+  };
 
   const pollForCompletion = (url, runId, threadId, apiKey) => {
     return new Promise((resolve, reject) => {
@@ -1374,20 +1382,20 @@ xmlns="http://www.w3.org/2000/svg"
                 "x-api-key": apiKey,
               },
             }
-          )
-          const pollResponse = await response.json()
+          );
+          const pollResponse = await response.json();
 
           if (pollResponse.data.status === "completed") {
-            clearInterval(pollInterval)
-            resolve(pollResponse.data)
+            clearInterval(pollInterval);
+            resolve(pollResponse.data);
           }
         } catch (error) {
-          clearInterval(pollInterval)
-          reject(error)
+          clearInterval(pollInterval);
+          reject(error);
         }
-      }, 1000)
-    })
-  }
+      }, 1000);
+    });
+  };
 
   const analyzeSentiment = async (messageContent) => {
     const text_to_emotion = await (
@@ -1402,87 +1410,87 @@ xmlns="http://www.w3.org/2000/svg"
           text: messageContent,
         }),
       })
-    ).json()
+    ).json();
     if (!text_to_emotion.success) {
-      console.log(widgetInitialise.message)
-      return null
+      console.log(widgetInitialise.message);
+      return null;
     }
-    return text_to_emotion.data
-  }
+    return text_to_emotion.data;
+  };
 
   const changeLottieThinking = (emotion) => {
-    const newLottiePlayer = document.createElement("dotlottie-player")
-    newLottiePlayer.setAttribute("src", sentimentLottieMap[emotion])
-    newLottiePlayer.setAttribute("background", "transparent")
-    newLottiePlayer.setAttribute("speed", "1")
-    newLottiePlayer.setAttribute("style", "width: 50px; height: 50px")
-    newLottiePlayer.setAttribute("direction", "1")
-    newLottiePlayer.setAttribute("mode", "normal")
-    newLottiePlayer.setAttribute("loop", "")
-    newLottiePlayer.setAttribute("autoplay", "")
+    const newLottiePlayer = document.createElement("dotlottie-player");
+    newLottiePlayer.setAttribute("src", sentimentLottieMap[emotion]);
+    newLottiePlayer.setAttribute("background", "transparent");
+    newLottiePlayer.setAttribute("speed", "1");
+    newLottiePlayer.setAttribute("style", "width: 50px; height: 50px");
+    newLottiePlayer.setAttribute("direction", "1");
+    newLottiePlayer.setAttribute("mode", "normal");
+    newLottiePlayer.setAttribute("loop", "");
+    newLottiePlayer.setAttribute("autoplay", "");
 
     const oldLottiePlayer = document.querySelector(
       ".chatbot-toggler span:last-child dotlottie-player"
-    )
+    );
     if (oldLottiePlayer) {
-      oldLottiePlayer.classList.add("fade-out")
-      oldLottiePlayer.parentNode.replaceChild(newLottiePlayer, oldLottiePlayer)
-      newLottiePlayer.classList.add("fade-in")
+      oldLottiePlayer.classList.add("fade-out");
+      oldLottiePlayer.parentNode.replaceChild(newLottiePlayer, oldLottiePlayer);
+      newLottiePlayer.classList.add("fade-in");
     }
-  }
+  };
 
   const handleSentimentAnalysis = async (messageContent) => {
     try {
-      const sentimentResponse = await analyzeSentiment(messageContent)
+      const sentimentResponse = await analyzeSentiment(messageContent);
       if (sentimentResponse) {
         const maxSentiment = Object.keys(sentimentResponse).reduce((a, b) =>
           sentimentResponse[a] >= sentimentResponse[b] ? a : b
-        )
+        );
 
         if (
           sentimentLottieMap[maxSentiment] &&
           sentimentResponse[maxSentiment] >= 0.5
         ) {
-          const newLottiePlayer = document.createElement("dotlottie-player")
-          newLottiePlayer.setAttribute("src", sentimentLottieMap[maxSentiment])
-          newLottiePlayer.setAttribute("background", "transparent")
-          newLottiePlayer.setAttribute("speed", "1")
-          newLottiePlayer.setAttribute("style", "width: 50px; height: 50px")
-          newLottiePlayer.setAttribute("direction", "1")
-          newLottiePlayer.setAttribute("mode", "normal")
-          newLottiePlayer.setAttribute("loop", "")
-          newLottiePlayer.setAttribute("autoplay", "")
+          const newLottiePlayer = document.createElement("dotlottie-player");
+          newLottiePlayer.setAttribute("src", sentimentLottieMap[maxSentiment]);
+          newLottiePlayer.setAttribute("background", "transparent");
+          newLottiePlayer.setAttribute("speed", "1");
+          newLottiePlayer.setAttribute("style", "width: 50px; height: 50px");
+          newLottiePlayer.setAttribute("direction", "1");
+          newLottiePlayer.setAttribute("mode", "normal");
+          newLottiePlayer.setAttribute("loop", "");
+          newLottiePlayer.setAttribute("autoplay", "");
 
           const oldLottiePlayer = document.querySelector(
             ".chatbot-toggler span:last-child dotlottie-player"
-          )
+          );
           if (oldLottiePlayer) {
-            oldLottiePlayer.classList.add("fade-out")
+            oldLottiePlayer.classList.add("fade-out");
             oldLottiePlayer.parentNode.replaceChild(
               newLottiePlayer,
               oldLottiePlayer
-            )
-            newLottiePlayer.classList.add("fade-in")
+            );
+            newLottiePlayer.classList.add("fade-in");
           }
         }
-        console.log(sentimentResponse)
-        console.log(maxSentiment)
+        console.log(sentimentResponse);
+        console.log(maxSentiment);
       }
     } catch (error) {
-      console.error("Error during sentiment analysis", error)
+      console.error("Error during sentiment analysis", error);
     }
-  }
-  let isLimitReached = false
-  let isRequestedForIncrease = false
+  };
+  let isLimitReached = false;
+  let isRequestedForIncrease = false;
 
   const getChatResponse = async (incomingChatDiv) => {
     if (type === "dex") {
-      changeLottieThinking("Nerd")
+      changeLottieThinking("Nerd");
     }
-    isLoading = true
-    const API_URL = `${url}/addMessageAndRun`
-    const responseContainer = document.createElement("div")
-    responseContainer.classList.add("response-container")
+    isLoading = true;
+    const API_URL = `${url}/addMessageAndRun`;
+    const responseContainer = document.createElement("div");
+    responseContainer.classList.add("response-container");
     const requestOptions = {
       method: "POST",
       headers: {
@@ -1493,15 +1501,15 @@ xmlns="http://www.w3.org/2000/svg"
         message: userText,
         threadId: threadId,
       }),
-    }
+    };
 
     try {
-      let messageContent = null
+      let messageContent = null;
       if (takeEmail) {
         if (takeOTP) {
-          const otpRegex = /^[0-9]{5}$/g
+          const otpRegex = /^[0-9]{5}$/g;
           if (!otpRegex.test(userText)) {
-            messageContent = "Please enter a valid otp"
+            messageContent = "Please enter a valid otp";
           } else {
             const response = await (
               await fetch(`${url}/verifyEmail`, {
@@ -1515,29 +1523,29 @@ xmlns="http://www.w3.org/2000/svg"
                   otp: userText,
                 }),
               })
-            ).json()
+            ).json();
             if (!response.success) {
-              console.log("error", response.message)
-              messageContent = response.message
+              console.log("error", response.message);
+              messageContent = response.message;
             } else {
-              messageContent = "Email verified now you can chat normally"
-              takeOTP = false
-              takeEmail = false
+              messageContent = "Email verified now you can chat normally";
+              takeOTP = false;
+              takeEmail = false;
             }
           }
           incomingChatDiv
             .querySelector(".chat-details")
-            .appendChild(responseContainer)
-          responseContainer.innerHTML = marked.parse(messageContent)
+            .appendChild(responseContainer);
+          responseContainer.innerHTML = marked.parse(messageContent);
           const typingAnimation =
-            incomingChatDiv.querySelector(".typing-animation")
+            incomingChatDiv.querySelector(".typing-animation");
           if (typingAnimation) {
-            typingAnimation.remove()
+            typingAnimation.remove();
           }
         } else {
-          const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g
+          const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
           if (!emailRegex.test(userText)) {
-            messageContent = "Please enter a valid email"
+            messageContent = "Please enter a valid email";
           } else {
             const response = await (
               await fetch(`${url}/addEmail`, {
@@ -1551,67 +1559,67 @@ xmlns="http://www.w3.org/2000/svg"
                   email: userText,
                 }),
               })
-            ).json()
+            ).json();
             if (!response.success) {
-              console.log("error", response.message)
-              messageContent = response.message
+              console.log("error", response.message);
+              messageContent = response.message;
             } else {
-              messageContent = "Email verified now you can chat normally"
+              messageContent = "Email verified now you can chat normally";
               // takeOTP = true
               takeEmail = false;
             }
           }
           incomingChatDiv
             .querySelector(".chat-details")
-            .appendChild(responseContainer)
-          responseContainer.innerHTML = marked.parse(messageContent)
+            .appendChild(responseContainer);
+          responseContainer.innerHTML = marked.parse(messageContent);
           const typingAnimation =
-            incomingChatDiv.querySelector(".typing-animation")
+            incomingChatDiv.querySelector(".typing-animation");
           if (typingAnimation) {
-            typingAnimation.remove()
+            typingAnimation.remove();
           }
         }
       } else {
-        const response = await fetch(API_URL, requestOptions)
+        const response = await fetch(API_URL, requestOptions);
         incomingChatDiv
           .querySelector(".chat-details")
-          .appendChild(responseContainer)
+          .appendChild(responseContainer);
         const typingAnimation =
-          incomingChatDiv.querySelector(".typing-animation")
+          incomingChatDiv.querySelector(".typing-animation");
         if (typingAnimation) {
-          typingAnimation.remove()
+          typingAnimation.remove();
         }
-        let buffer = ""
-        let message = ""
+        let buffer = "";
+        let message = "";
         if (!response.ok) {
-          const data = await response.json()
-          message += data.data
+          const data = await response.json();
+          message += data.data;
           if (data.data === "Inactive limit reached") {
             responseContainer.innerHTML = marked.parse(
               "Please enter your email to continue"
-            )
-            message = "Please enter your email to continue"
-            takeEmail = true
+            );
+            message = "Please enter your email to continue";
+            takeEmail = true;
           }
         } else {
-          const reader = response.body.getReader()
-          const decoder = new TextDecoder()
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
           while (true) {
-            const { value, done } = await reader.read()
-            if (done) break
+            const { value, done } = await reader.read();
+            if (done) break;
 
-            buffer += decoder.decode(value, { stream: true })
+            buffer += decoder.decode(value, { stream: true });
 
-            let eolIndex
+            let eolIndex;
             while ((eolIndex = buffer.indexOf("\n\n")) >= 0) {
-              const line = buffer.slice(0, eolIndex).trim()
-              buffer = buffer.slice(eolIndex + 2)
+              const line = buffer.slice(0, eolIndex).trim();
+              buffer = buffer.slice(eolIndex + 2);
               if (line.startsWith("data: ")) {
-                const data = JSON.parse(line.substring(5))
+                const data = JSON.parse(line.substring(5));
                 if (data.response) {
-                  message += data.response
-                  responseContainer.innerHTML = marked.parse(message)
-                  chatContainer.scrollTo(0, chatContainer.scrollHeight)
+                  message += data.response;
+                  responseContainer.innerHTML = marked.parse(message);
+                  chatContainer.scrollTo(0, chatContainer.scrollHeight);
                 }
               }
             }
@@ -1629,9 +1637,8 @@ xmlns="http://www.w3.org/2000/svg"
                 threadId: threadId,
               }),
             })
-          ).json()
+          ).json();
         }
-        console.log(message)
         // if (
         //   !response.success &&
         //   response.data !== "Inactive limit reached" &&
@@ -1665,35 +1672,35 @@ xmlns="http://www.w3.org/2000/svg"
       }
 
       if (isLimitReached) {
-        document.querySelector(".typing-content").style.display = "none"
-        document.querySelector(".send-btn").style.display = "none"
-        const increaseLimitBtn = document.createElement("button")
-        increaseLimitBtn.className = "increase-limit-btn"
-        increaseLimitBtn.textContent = "Request Limit Increase"
-        increaseLimitBtn.style.backgroundColor = "#5E5BE6"
-        increaseLimitBtn.style.borderRadius = "5px"
-        increaseLimitBtn.style.color = "white"
-        increaseLimitBtn.style.padding = "10px"
-        increaseLimitBtn.style.marginTop = "10px"
-        increaseLimitBtn.style.border = "none"
-        increaseLimitBtn.style.cursor = "pointer"
+        document.querySelector(".typing-content").style.display = "none";
+        document.querySelector(".send-btn").style.display = "none";
+        const increaseLimitBtn = document.createElement("button");
+        increaseLimitBtn.className = "increase-limit-btn";
+        increaseLimitBtn.textContent = "Request Limit Increase";
+        increaseLimitBtn.style.backgroundColor = "#5E5BE6";
+        increaseLimitBtn.style.borderRadius = "5px";
+        increaseLimitBtn.style.color = "white";
+        increaseLimitBtn.style.padding = "10px";
+        increaseLimitBtn.style.marginTop = "10px";
+        increaseLimitBtn.style.border = "none";
+        increaseLimitBtn.style.cursor = "pointer";
         if (isRequestedForIncrease) {
-          increaseLimitBtn.textContent = "Request Sent"
-          increaseLimitBtn.disabled = true
-          increaseLimitBtn.style.backgroundColor = "rgba(94, 91, 230, 0.21)"
-          increaseLimitBtn.style.cursor = "not-allowed"
-          increaseLimitBtn.style.border = "1px solid #5E5BE6"
+          increaseLimitBtn.textContent = "Request Sent";
+          increaseLimitBtn.disabled = true;
+          increaseLimitBtn.style.backgroundColor = "rgba(94, 91, 230, 0.21)";
+          increaseLimitBtn.style.cursor = "not-allowed";
+          increaseLimitBtn.style.border = "1px solid #5E5BE6";
           document.querySelector(".typing-content").innerHTML =
-            "Please check back after some time, you will get an email from us if your limit increase request gets approved"
+            "Please check back after some time, you will get an email from us if your limit increase request gets approved";
           document.querySelector(".typing-content").style.color =
-            "var(--text-color)"
-          document.querySelector(".typing-content").style.fontSize = "14px"
-          document.querySelector(".typing-content").style.textAlign = "center"
+            "var(--text-color)";
+          document.querySelector(".typing-content").style.fontSize = "14px";
+          document.querySelector(".typing-content").style.textAlign = "center";
 
-          document.querySelector(".typing-content").style.display = "block"
+          document.querySelector(".typing-content").style.display = "block";
         }
         increaseLimitBtn.onclick = async () => {
-          increaseLimitBtn.disabled = true
+          increaseLimitBtn.disabled = true;
           const response = await (
             await fetch(`${url}/requestForIncrease`, {
               headers: {
@@ -1702,89 +1709,94 @@ xmlns="http://www.w3.org/2000/svg"
                 "x-fingerprint": visitorId,
               },
             })
-          ).json()
+          ).json();
           if (!response.success) {
-            increaseLimitBtn.textContent = response.message
+            increaseLimitBtn.textContent = response.message;
           } else {
-            increaseLimitBtn.textContent = "Request Sent"
+            increaseLimitBtn.textContent = "Request Sent";
             document.querySelector(".typing-content").innerHTML =
-              "Please check back after some time, you will get an email from us if your limit increase request gets approved"
+              "Please check back after some time, you will get an email from us if your limit increase request gets approved";
             document.querySelector(".typing-content").style.color =
-              "var(--text-color)"
-            document.querySelector(".typing-content").style.fontSize = "14px"
+              "var(--text-color)";
+            document.querySelector(".typing-content").style.fontSize = "14px";
             // text center
-            document.querySelector(".typing-content").style.textAlign = "center"
-            document.querySelector(".typing-content").style.display = "block"
+            document.querySelector(".typing-content").style.textAlign =
+              "center";
+            document.querySelector(".typing-content").style.display = "block";
           }
-          isRequestedForIncrease = true
-          increaseLimitBtn.style.backgroundColor = "rgba(94, 91, 230, 0.21)"
-          increaseLimitBtn.style.cursor = "not-allowed"
-          increaseLimitBtn.style.border = "1px solid #5E5BE6"
-        }
-        responseContainer.appendChild(increaseLimitBtn)
+          isRequestedForIncrease = true;
+          increaseLimitBtn.style.backgroundColor = "rgba(94, 91, 230, 0.21)";
+          increaseLimitBtn.style.cursor = "not-allowed";
+          increaseLimitBtn.style.border = "1px solid #5E5BE6";
+        };
+        responseContainer.appendChild(increaseLimitBtn);
       }
 
-      const codeBlocks = responseContainer.querySelectorAll("pre code")
+      const codeBlocks = responseContainer.querySelectorAll("pre code");
       codeBlocks.forEach((codeBlock) => {
-        hljs.highlightElement(codeBlock)
+        hljs.highlightElement(codeBlock);
 
-        const languageMatch = codeBlock.className.match(/language-(\w+)/)
+        const languageMatch = codeBlock.className.match(/language-(\w+)/);
         if (languageMatch) {
-          const language = languageMatch[1]
+          const language = languageMatch[1];
 
-          const headerDiv = document.createElement("div")
-          headerDiv.className = "code-header"
-          headerDiv.textContent = `${language}`
+          const headerDiv = document.createElement("div");
+          headerDiv.className = "code-header";
+          headerDiv.textContent = `${language}`;
 
-          const copyBtn = document.createElement("button")
-          copyBtn.className = "copy-code-btn"
-          copyBtn.textContent = "Copy"
+          const copyBtn = document.createElement("button");
+          copyBtn.className = "copy-code-btn";
+          copyBtn.textContent = "Copy";
           copyBtn.onclick = () => {
             navigator.clipboard.writeText(codeBlock.textContent).then(() => {
-              copyBtn.textContent = "Copied!"
-              setTimeout(() => (copyBtn.textContent = "Copy"), 1500)
-            })
-          }
+              copyBtn.textContent = "Copied!";
+              setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
+            });
+          };
 
-          codeBlock.parentNode.insertBefore(headerDiv, codeBlock)
-          headerDiv.appendChild(copyBtn)
+          codeBlock.parentNode.insertBefore(headerDiv, codeBlock);
+          headerDiv.appendChild(copyBtn);
         }
-      })
+      });
 
-      handleSentimentAnalysis(messageContent)
+      handleSentimentAnalysis(messageContent);
 
       if (type === "dex") {
-        changeLottieThinking("Happy")
+        changeLottieThinking("Happy");
       }
     } catch (error) {
-      console.error("Error while fetching chat response", error)
-      const errorElement = document.createElement("p")
-      errorElement.classList.add("error")
-      errorElement.textContent = "Something went wrong! Please try again."
-      responseContainer.appendChild(errorElement)
+      console.error("Error while fetching chat response", error);
+      const errorElement = document.createElement("p");
+      errorElement.classList.add("error");
+      errorElement.textContent = "Something went wrong! Please try again.";
+      responseContainer.appendChild(errorElement);
     } finally {
-      chatContainer.scrollTo(0, chatContainer.scrollHeight)
-      isDefaultTextPresent = false
-      isLoading = false
+      chatContainer.scrollTo(0, chatContainer.scrollHeight);
+      isDefaultTextPresent = false;
+      isLoading = false;
       if (responseContainer) {
-        if (size === "s" && !isExpanded) {
-          responseContainer.style.width = "20rem"
-        } else if (size === "l" && !isExpanded) {
-          responseContainer.style.width = "24vw"
-          chatContent.style.width = "24vw"
+        if (window.innerWidth <= 490) {
+          chatContainer.style.height = "";
+          chatContainer.style.width = "";
+        } else {
+          if (size === "s" && !isExpanded) {
+            responseContainer.style.width = "20rem";
+          } else if (size === "l" && !isExpanded) {
+            responseContainer.style.width = "24vw";
+          }
         }
       } else {
-        console.error("Chat container not found in the DOM")
+        console.error("Chat container not found in the DOM");
       }
     }
-  }
+  };
 
   const copyResponse = (copyBtn) => {
-    const reponseTextElement = copyBtn.parentElement.querySelector("p")
-    navigator.clipboard.writeText(reponseTextElement.textContent)
-    copyBtn.innerHTML = `${checkSvg}`
-    setTimeout(() => (copyBtn.innerHTML = `${copySvg}`), 1000)
-  }
+    const reponseTextElement = copyBtn.parentElement.querySelector("p");
+    navigator.clipboard.writeText(reponseTextElement.textContent);
+    copyBtn.innerHTML = `${checkSvg}`;
+    setTimeout(() => (copyBtn.innerHTML = `${copySvg}`), 1000);
+  };
 
   const showTypingAnimation = () => {
     const html = `<div class="chat-content">
@@ -1836,24 +1848,24 @@ xmlns="http://www.w3.org/2000/svg"
                     </div>
                 </div>
                 <span >${copySvg}</span>
-            </div>`
-    const incomingChatDiv = createChatElement(html, "incoming")
-    chatContainer.appendChild(incomingChatDiv)
+            </div>`;
+    const incomingChatDiv = createChatElement(html, "incoming");
+    chatContainer.appendChild(incomingChatDiv);
 
-    const copyButton = incomingChatDiv.querySelector("span")
-    copyButton.addEventListener("click", () => copyResponse(copyButton))
+    const copyButton = incomingChatDiv.querySelector("span");
+    copyButton.addEventListener("click", () => copyResponse(copyButton));
 
-    chatContainer.scrollTo(0, chatContainer.scrollHeight)
-    getChatResponse(incomingChatDiv)
-  }
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    getChatResponse(incomingChatDiv);
+  };
 
   const handleOutgoingChat = () => {
-    if (isLoading) return
-    userText = chatInput.value.trim()
-    if (!userText) return
+    if (isLoading) return;
+    userText = chatInput.value.trim();
+    if (!userText) return;
 
-    chatInput.value = ""
-    chatInput.style.height = `${initialInputHeight}px`
+    chatInput.value = "";
+    chatInput.style.height = `${initialInputHeight}px`;
 
     const html = `<div class="chat-content">
                       <div class="chat-details">
@@ -1863,13 +1875,13 @@ xmlns="http://www.w3.org/2000/svg"
                       </svg>
                           <p>${userText}</p>
                       </div>
-                  </div>`
-    const outgoingChatDiv = createChatElement(html, "outgoing")
-    chatContainer.querySelector(".default-text")?.remove()
-    chatContainer.appendChild(outgoingChatDiv)
-    chatContainer.scrollTo(0, chatContainer.scrollHeight)
-    setTimeout(showTypingAnimation, 500)
-  }
+                  </div>`;
+    const outgoingChatDiv = createChatElement(html, "outgoing");
+    chatContainer.querySelector(".default-text")?.remove();
+    chatContainer.appendChild(outgoingChatDiv);
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    setTimeout(showTypingAnimation, 500);
+  };
 
   deleteButton.addEventListener("click", async () => {
     const thread = await (
@@ -1881,157 +1893,234 @@ xmlns="http://www.w3.org/2000/svg"
           "x-fingerprint": visitorId,
         },
       })
-    ).json()
-    console.log(thread)
+    ).json();
+    console.log(thread);
     if (!thread.success) {
-      console.log(thread.message)
-      return
+      console.log(thread.message);
+      return;
     }
-    threadId = thread.data
-    prevMessages = []
-    loadDataFromPrevMessagesArray()
-    isDefaultTextPresent = true
-  })
+    threadId = thread.data;
+    prevMessages = [];
+    loadDataFromPrevMessagesArray();
+    isDefaultTextPresent = true;
+  });
 
   chatInput.addEventListener("input", () => {
-    chatInput.style.height = `${initialInputHeight}px`
-    chatInput.style.height = `${chatInput.scrollHeight}px`
-  })
+    chatInput.style.height = `${initialInputHeight}px`;
+    chatInput.style.height = `${chatInput.scrollHeight}px`;
+  });
   const viewportMeta = document.querySelector('meta[name="viewport"]');
-  const originalContent = viewportMeta.getAttribute('content');
+  const originalContent = viewportMeta.getAttribute("content");
 
   chatInput.addEventListener("click", () => {
-    const content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
-    viewportMeta.setAttribute('content', content);
-  })
+    const content =
+      "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0";
+    viewportMeta.setAttribute("content", content);
+  });
   chatInput.addEventListener("blur", () => {
-    viewportMeta.setAttribute('content', originalContent);
-  })
+    viewportMeta.setAttribute("content", originalContent);
+  });
 
   chatInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
-      e.preventDefault()
-      if (isLoading) return
-      handleOutgoingChat()
+      e.preventDefault();
+      if (isLoading) return;
+      handleOutgoingChat();
     }
-  })
+  });
 
-  loadDataFromPrevMessagesArray()
-  sendButton.addEventListener("click", handleOutgoingChat)
+  loadDataFromPrevMessagesArray();
+  sendButton.addEventListener("click", handleOutgoingChat);
 
-  const modalBackdrop = document.createElement("div")
-  modalBackdrop.classList.add("modal-backdrop")
-  document.body.appendChild(modalBackdrop)
+  const modalBackdrop = document.createElement("div");
+  modalBackdrop.classList.add("modal-backdrop");
+  document.body.appendChild(modalBackdrop);
 
   const handleCloseChatbot = () => {
-    document.body.classList.remove("show-chatbot")
-    const chatbot = document.querySelector(".chatbot")
+    document.body.classList.remove("show-chatbot");
+    const chatbot = document.querySelector(".chatbot");
     if (isExpanded) {
-      isExpanded = false
-      expandBtn.innerHTML = expandSvg
+      isExpanded = false;
+      expandBtn.innerHTML = expandSvg;
       if (document.body.classList.contains("modal-open")) {
-        document.body.classList.remove("modal-open")
-        chatbot.classList.remove("expanded")
+        document.body.classList.remove("modal-open");
+        chatbot.classList.remove("expanded");
       }
     }
-  }
+  };
 
-  closeBtn.addEventListener("click", handleCloseChatbot)
+  closeBtn.addEventListener("click", handleCloseChatbot);
 
   const handleClickOutside = (event) => {
     if (isExpanded && !chatContainer.contains(event.target)) {
-      handleCloseChatbot()
-      manageChatbotState("close")
+      handleCloseChatbot();
+      manageChatbotState("close");
     }
-  }
-
-  expandBtn.addEventListener("click", () => {
-    isExpanded = !isExpanded
-    expandBtn.innerHTML = isExpanded ? minimizeSvg : expandSvg
-    document.body.classList.toggle("modal-open")
-    const chatbot = document.querySelector(".chatbot")
-    chatbot.classList.toggle("expanded")
-
-    if (isExpanded) {
-      modalBackdrop.addEventListener("click", handleClickOutside)
-      chatbot.classList.add("expanded")
-      chatbot.classList.remove("collapsed")
-      const responseContainers = document.querySelectorAll(
-        ".response-container"
-      )
-      if (size === "l" && isExpanded) {
-        chatContainer.style.height = ""
-        chatContainer.style.width = ""
-        responseContainers.forEach((container) => {
-          container.style.width = isExpanded ? "" : "24vw"
-        })
-      } else if (size === "s" && isExpanded) {
-        chatContainer.style.height = ""
-        chatContainer.style.width = ""
-        responseContainers.forEach((container) => {
-          container.style.width = isExpanded ? "" : "20rem"
-        })
+    if (chatContainer) {
+      if (window.innerWidth <= 490) {
+        chatContainer.style.height = "93%";
+        chatContainer.style.width = "auto";
+      } else if (window.innerWidth > 490) {
+        if (size === "s" && !isExpanded) {
+          chatContainer.style.height = "32rem";
+          chatContainer.style.width = "27rem";
+        } else if (size === "l") {
+          if (!isExpanded) {
+            chatContainer.style.height = "75vh";
+            chatContainer.style.width = "30vw";
+          } else {
+            chatContainer.style.height = "";
+            chatContainer.style.width = "";
+          }
+        }
       }
     } else {
-      modalBackdrop.removeEventListener("click", handleClickOutside)
-      // chatbot.classList.add("collapsed");
-      chatbot.classList.remove("expanded")
+      console.error("Chat container not found in the DOM");
     }
-  })
+  };
+
+  expandBtn.addEventListener("click", () => {
+    isExpanded = !isExpanded;
+    expandBtn.innerHTML = isExpanded ? minimizeSvg : expandSvg;
+    document.body.classList.toggle("modal-open");
+    const chatbot = document.querySelector(".chatbot");
+    chatbot.classList.toggle("expanded");
+
+    if (isExpanded) {
+      modalBackdrop.addEventListener("click", handleClickOutside);
+      chatbot.classList.add("expanded");
+      chatbot.classList.remove("collapsed");
+      const responseContainers = document.querySelectorAll(
+        ".response-container"
+      );
+      if (window.innerWidth <= 490) {
+        chatContainer.style.height = "";
+        chatContainer.style.width = "";
+        responseContainers.forEach((container) => {
+          container.style.width = "";
+        });
+      } else {
+        if (size === "l" && isExpanded) {
+          chatContainer.style.height = "";
+          chatContainer.style.width = "";
+          responseContainers.forEach((container) => {
+            container.style.width = isExpanded ? "" : "24vw";
+          });
+        } else if (size === "s" && isExpanded) {
+          chatContainer.style.height = "";
+          chatContainer.style.width = "";
+          responseContainers.forEach((container) => {
+            container.style.width = isExpanded ? "" : "20rem";
+          });
+        }
+      }
+    } else {
+      modalBackdrop.removeEventListener("click", handleClickOutside);
+      // chatbot.classList.add("collapsed");
+      chatbot.classList.remove("expanded");
+      if (chatContainer) {
+        if (window.innerWidth <= 490) {
+          chatContainer.style.height = "93%";
+          chatContainer.style.width = "auto";
+        } else if (window.innerWidth > 490) {
+          if (size === "s" && !isExpanded) {
+            chatContainer.style.height = "32rem";
+            chatContainer.style.width = "27rem";
+          } else if (size === "l") {
+            if (!isExpanded) {
+              chatContainer.style.height = "75vh";
+              chatContainer.style.width = "30vw";
+            } else {
+              chatContainer.style.height = "";
+              chatContainer.style.width = "";
+            }
+          }
+        }
+      } else {
+        console.error("Chat container not found in the DOM");
+      }
+    }
+  });
 
   const manageChatbotState = (state) => {
-    const chatbot = document.querySelector(".chatbot")
+    const chatbot = document.querySelector(".chatbot");
     if (state === "close") {
-      chatbot.classList.remove("open", "semi-closed")
-      chatbot.classList.add("close")
+      chatbot.classList.remove("open", "semi-closed");
+      chatbot.classList.add("close");
     } else if (state === "open") {
-      chatbot.classList.remove("close", "semi-closed")
-      chatbot.classList.add("open")
+      chatbot.classList.remove("close", "semi-closed");
+      chatbot.classList.add("open");
+      chatContainer.scrollTo(0, chatContainer.scrollHeight);
     } else if (state === "semi-closed") {
-      chatbot.classList.remove("open", "close")
-      chatbot.classList.add("semi-closed")
+      chatbot.classList.remove("open", "close");
+      chatbot.classList.add("semi-closed");
     }
-  }
 
-  chatContainer.scrollTo(0, chatContainer.scrollHeight)
+    if (chatContainer) {
+      if (window.innerWidth <= 490) {
+        chatContainer.style.height = "93%";
+        chatContainer.style.width = "auto";
+      } else if (window.innerWidth > 490) {
+        if (size === "s" && !isExpanded) {
+          chatContainer.style.height = "32rem";
+          chatContainer.style.width = "27rem";
+        } else if (size === "l") {
+          if (!isExpanded) {
+            chatContainer.style.height = "75vh";
+            chatContainer.style.width = "30vw";
+          } else {
+            chatContainer.style.height = "";
+            chatContainer.style.width = "";
+          }
+        }
+      }
+    } else {
+      console.error("Chat container not found in the DOM");
+    }
+  };
+
+  chatContainer.scrollTo(0, chatContainer.scrollHeight);
   if (isDefaultTextPresent && window.matchMedia("(min-width: 768px)").matches) {
-    manageChatbotState("semi-closed")
-    document.body.classList.add("show-chatbot")
+    manageChatbotState("semi-closed");
+    document.body.classList.add("show-chatbot");
   } else {
-    manageChatbotState("close")
+    manageChatbotState("close");
   }
 
   closeBtn.addEventListener("click", () => {
-    manageChatbotState("close")
-  })
+    manageChatbotState("close");
+  });
 
   chatInput.addEventListener("focus", () => {
-    manageChatbotState("open")
-  })
+    manageChatbotState("open");
+  });
 
   chatbotToggler.addEventListener("click", () => {
-    document.body.classList.toggle("show-chatbot")
-    const chatbot = document.querySelector(".chatbot")
+    document.body.classList.toggle("show-chatbot");
+    const chatbot = document.querySelector(".chatbot");
     if (chatbot.classList.contains("close")) {
-      if (isDefaultTextPresent && window.matchMedia("(min-width: 768px)").matches) {
-        manageChatbotState("semi-closed")
+      if (
+        isDefaultTextPresent &&
+        window.matchMedia("(min-width: 768px)").matches
+      ) {
+        manageChatbotState("semi-closed");
       } else {
-        manageChatbotState("open")
+        manageChatbotState("open");
       }
     } else {
-      manageChatbotState("close")
+      manageChatbotState("close");
     }
-  })
+  });
 
-  const heart = document.querySelector(".heart")
+  const heart = document.querySelector(".heart");
   heart.addEventListener("click", function () {
     if (!this.classList.contains("liked")) {
-      this.classList.add("is_animating")
+      this.classList.add("is_animating");
     }
-    this.classList.toggle("liked")
-  })
+    this.classList.toggle("liked");
+  });
 
   heart.addEventListener("animationend", function () {
-    this.classList.remove("is_animating")
-  })
-}
+    this.classList.remove("is_animating");
+  });
+};
