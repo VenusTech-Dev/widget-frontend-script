@@ -808,7 +808,7 @@ ol {
   body.show-chatbot .chatbot {
     // position: absolute;
     z-index: 10000;
-    height: 100vh;
+    height: 100%;
     width: 100%;
   }
 
@@ -827,6 +827,11 @@ ol {
 
   .chat .chat-content span {
     display: none;
+  }
+
+  .typing-textarea textarea {
+    font-size: 16px;
+    padding: 12.5px 45px 12.5px 20px;
   }
 }
 
@@ -1026,7 +1031,6 @@ code {
   const deleteButton = document.querySelector("#delete-btn")
   const expandBtn = document.querySelector(".expand-btn")
   const chatContainer = document.querySelector(".chat-container")
-  const chatContent = document.querySelector(".chat")
 
   let userText = null
   const initialInputHeight = chatInput.scrollHeight
@@ -1210,6 +1214,7 @@ xmlns="http://www.w3.org/2000/svg"
   </div>
 </div>
 `
+
   let isDefaultTextPresent = false
 
   const loadDataFromPrevMessagesArray = () => {
@@ -1343,12 +1348,14 @@ xmlns="http://www.w3.org/2000/svg"
         if (size === "s" && !isExpanded) {
           chatContainer.style.height = "32rem"
           chatContainer.style.width = "27rem"
-        } else if (size === "l" && !isExpanded) {
-          chatContainer.style.height = "75vh"
-          chatContainer.style.width = "30vw"
-        } else if (size === "l" && isExpanded) {
-          chatContainer.style.height = ""
-          chatContainer.style.width = ""
+        } else if (size === "l") {
+          if (!isExpanded) {
+            chatContainer.style.height = "75vh"
+            chatContainer.style.width = "30vw"
+          } else {
+            chatContainer.style.height = ""
+            chatContainer.style.width = ""
+          }
         }
       }
     } else {
@@ -1558,7 +1565,7 @@ xmlns="http://www.w3.org/2000/svg"
             } else {
               messageContent = "Email verified now you can chat normally"
               // takeOTP = true
-              takeEmail = false;
+              takeEmail = false
             }
           }
           incomingChatDiv
@@ -1631,7 +1638,6 @@ xmlns="http://www.w3.org/2000/svg"
             })
           ).json()
         }
-        console.log(message)
         // if (
         //   !response.success &&
         //   response.data !== "Inactive limit reached" &&
@@ -1767,11 +1773,15 @@ xmlns="http://www.w3.org/2000/svg"
       isDefaultTextPresent = false
       isLoading = false
       if (responseContainer) {
-        if (size === "s" && !isExpanded) {
-          responseContainer.style.width = "20rem"
-        } else if (size === "l" && !isExpanded) {
-          responseContainer.style.width = "24vw"
-          chatContent.style.width = "24vw"
+        if (window.innerWidth <= 490) {
+          chatContainer.style.height = ""
+          chatContainer.style.width = ""
+        } else {
+          if (size === "s" && !isExpanded) {
+            responseContainer.style.width = "20rem"
+          } else if (size === "l" && !isExpanded) {
+            responseContainer.style.width = "24vw"
+          }
         }
       } else {
         console.error("Chat container not found in the DOM")
@@ -1897,15 +1907,16 @@ xmlns="http://www.w3.org/2000/svg"
     chatInput.style.height = `${initialInputHeight}px`
     chatInput.style.height = `${chatInput.scrollHeight}px`
   })
-  const viewportMeta = document.querySelector('meta[name="viewport"]');
-  const originalContent = viewportMeta.getAttribute('content');
+  const viewportMeta = document.querySelector('meta[name="viewport"]')
+  const originalContent = viewportMeta.getAttribute("content")
 
   chatInput.addEventListener("click", () => {
-    const content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
-    viewportMeta.setAttribute('content', content);
+    const content =
+      "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    viewportMeta.setAttribute("content", content)
   })
   chatInput.addEventListener("blur", () => {
-    viewportMeta.setAttribute('content', originalContent);
+    viewportMeta.setAttribute("content", originalContent)
   })
 
   chatInput.addEventListener("keydown", (e) => {
@@ -1943,6 +1954,27 @@ xmlns="http://www.w3.org/2000/svg"
       handleCloseChatbot()
       manageChatbotState("close")
     }
+    if (chatContainer) {
+      if (window.innerWidth <= 490) {
+        chatContainer.style.height = "93%"
+        chatContainer.style.width = "auto"
+      } else if (window.innerWidth > 490) {
+        if (size === "s" && !isExpanded) {
+          chatContainer.style.height = "32rem"
+          chatContainer.style.width = "27rem"
+        } else if (size === "l") {
+          if (!isExpanded) {
+            chatContainer.style.height = "75vh"
+            chatContainer.style.width = "30vw"
+          } else {
+            chatContainer.style.height = ""
+            chatContainer.style.width = ""
+          }
+        }
+      }
+    } else {
+      console.error("Chat container not found in the DOM")
+    }
   }
 
   expandBtn.addEventListener("click", () => {
@@ -1959,23 +1991,52 @@ xmlns="http://www.w3.org/2000/svg"
       const responseContainers = document.querySelectorAll(
         ".response-container"
       )
-      if (size === "l" && isExpanded) {
+      if (window.innerWidth <= 490) {
         chatContainer.style.height = ""
         chatContainer.style.width = ""
         responseContainers.forEach((container) => {
-          container.style.width = isExpanded ? "" : "24vw"
+          container.style.width = ""
         })
-      } else if (size === "s" && isExpanded) {
-        chatContainer.style.height = ""
-        chatContainer.style.width = ""
-        responseContainers.forEach((container) => {
-          container.style.width = isExpanded ? "" : "20rem"
-        })
+      } else {
+        if (size === "l" && isExpanded) {
+          chatContainer.style.height = ""
+          chatContainer.style.width = ""
+          responseContainers.forEach((container) => {
+            container.style.width = isExpanded ? "" : "24vw"
+          })
+        } else if (size === "s" && isExpanded) {
+          chatContainer.style.height = ""
+          chatContainer.style.width = ""
+          responseContainers.forEach((container) => {
+            container.style.width = isExpanded ? "" : "20rem"
+          })
+        }
       }
     } else {
       modalBackdrop.removeEventListener("click", handleClickOutside)
       // chatbot.classList.add("collapsed");
       chatbot.classList.remove("expanded")
+      if (chatContainer) {
+        if (window.innerWidth <= 490) {
+          chatContainer.style.height = "93%"
+          chatContainer.style.width = "auto"
+        } else if (window.innerWidth > 490) {
+          if (size === "s" && !isExpanded) {
+            chatContainer.style.height = "32rem"
+            chatContainer.style.width = "27rem"
+          } else if (size === "l") {
+            if (!isExpanded) {
+              chatContainer.style.height = "75vh"
+              chatContainer.style.width = "30vw"
+            } else {
+              chatContainer.style.height = ""
+              chatContainer.style.width = ""
+            }
+          }
+        }
+      } else {
+        console.error("Chat container not found in the DOM")
+      }
     }
   })
 
@@ -1987,9 +2048,32 @@ xmlns="http://www.w3.org/2000/svg"
     } else if (state === "open") {
       chatbot.classList.remove("close", "semi-closed")
       chatbot.classList.add("open")
+      chatContainer.scrollTo(0, chatContainer.scrollHeight)
     } else if (state === "semi-closed") {
       chatbot.classList.remove("open", "close")
       chatbot.classList.add("semi-closed")
+    }
+
+    if (chatContainer) {
+      if (window.innerWidth <= 490) {
+        chatContainer.style.height = "93%"
+        chatContainer.style.width = "auto"
+      } else if (window.innerWidth > 490) {
+        if (size === "s" && !isExpanded) {
+          chatContainer.style.height = "32rem"
+          chatContainer.style.width = "27rem"
+        } else if (size === "l") {
+          if (!isExpanded) {
+            chatContainer.style.height = "75vh"
+            chatContainer.style.width = "30vw"
+          } else {
+            chatContainer.style.height = ""
+            chatContainer.style.width = ""
+          }
+        }
+      }
+    } else {
+      console.error("Chat container not found in the DOM")
     }
   }
 
@@ -2013,7 +2097,10 @@ xmlns="http://www.w3.org/2000/svg"
     document.body.classList.toggle("show-chatbot")
     const chatbot = document.querySelector(".chatbot")
     if (chatbot.classList.contains("close")) {
-      if (isDefaultTextPresent && window.matchMedia("(min-width: 768px)").matches) {
+      if (
+        isDefaultTextPresent &&
+        window.matchMedia("(min-width: 768px)").matches
+      ) {
         manageChatbotState("semi-closed")
       } else {
         manageChatbotState("open")
