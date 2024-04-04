@@ -325,9 +325,8 @@ export const initialise = async (api_key) => {
 </div>
 </div>`
 
-  const widgetCSS = `@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap");
-
-:root {
+  const widgetCSS = `
+:host {
   --prime: ${color};
   --text-color: #d1d5db;
   --icon-color: #d1d5db;
@@ -361,7 +360,7 @@ export const initialise = async (api_key) => {
   z-index: 10010;
 }
 
-body.show-chatbot .chatbot-toggler {
+:host-context(body.show-chatbot) .chatbot-toggler {
   transform: rotate(360deg);
 }
 
@@ -371,21 +370,23 @@ body.show-chatbot .chatbot-toggler {
 }
 
 .chatbot-toggler span:last-child,
-body.show-chatbot .chatbot-toggler span:first-child {
+:host-context(body.show-chatbot) .chatbot-toggler span:first-child {
   opacity: 0;
 }
 
-body.show-chatbot .chatbot-toggler span:last-child {
+:host-context(body.show-chatbot) .chatbot-toggler span:last-child {
   opacity: 1;
 }
 
-* {
+:host * {
   margin: 0;
   box-sizing: border-box;
+  z-index: 10000;
 }
 
 .widget * {
   font-family: "Poppins", sans-serif;
+  font-weight: 400;
 }
 
 .chatbot {
@@ -402,7 +403,7 @@ body.show-chatbot .chatbot-toggler span:last-child {
   transition: opacity 0.3s ease-in-out;
 }
 
-body.show-chatbot .chatbot {
+:host-context(body.show-chatbot) .chatbot {
   opacity: 1;
   pointer-events: auto;
   transform: scale(1);
@@ -496,7 +497,7 @@ body.show-chatbot .chatbot {
   }
 }
 
-header p {
+.chatbot header p {
   padding-left: 1.5rem;
   font-size: 1rem;
   font-weight: 500;
@@ -799,13 +800,13 @@ ol {
     width: 100%;
   }
 
-  body.show-chatbot .chatbot.semi-closed {
+  :host-context(body.show-chatbot) .chatbot.semi-closed {
     transform: scale(0.75);
     right: 1.5rem;
     bottom: 5rem;
   }
 
-  body.show-chatbot .chatbot {
+  :host-context(body.show-chatbot) .chatbot {
     // position: absolute;
     z-index: 10000;
     height: 100%;
@@ -849,7 +850,7 @@ ol {
   display: none;
 }
 
-.modal-open .chatbot {
+:host-context(.modal-open) .chatbot {
   position: fixed;
   top: 4%;
   bottom: 4%;
@@ -862,21 +863,21 @@ ol {
   max-width: calc(100% - 25%);
 }
 
-.modal-open .chat-container .chat {
+:host-context(.modal-open) .chat-container .chat {
   padding: 40px 50px;
 }
 
-.modal-open .modal-backdrop {
+:host-context(.modal-open) .modal-backdrop {
   display: block;
 }
 
-.modal-open .chat-container {
+:host-context(.modal-open) .chat-container {
   height: calc(100% - 120px);
   width: auto;
   padding-bottom: 60px;
 }
 
-.modal-open .response-container {
+:host-context(.modal-open) .response-container {
   width: calc(100% - 40px);
 }
 
@@ -1005,32 +1006,45 @@ code {
 }
 `
 
-  document.body.insertAdjacentHTML("beforeend", widgetHTML)
+  const shadowDiv = document.createElement("div")
+  document.body.appendChild(shadowDiv)
+
+  const shadowRoot = shadowDiv.attachShadow({ mode: "open" })
+
+  const htmlContainer = document.createElement("div")
+  htmlContainer.innerHTML = widgetHTML
+  shadowRoot.appendChild(htmlContainer)
+
+  const styleElement = document.createElement("style")
+  styleElement.textContent = widgetCSS
+  shadowRoot.appendChild(styleElement)
 
   const lottieScript = document.createElement("script")
   lottieScript.type = "module"
   lottieScript.src =
     "https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
-
-  document.body.appendChild(lottieScript)
-
-  const styleSheet = document.createElement("style")
-  styleSheet.innerText = widgetCSS
-  document.head.appendChild(styleSheet)
+  shadowRoot.appendChild(lottieScript)
 
   const highlightStyle = document.createElement("link")
   highlightStyle.rel = "stylesheet"
   highlightStyle.href =
     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/tokyo-night-dark.css"
-  document.head.appendChild(highlightStyle)
+  shadowRoot.appendChild(highlightStyle)
 
-  const chatbotToggler = document.querySelector(".chatbot-toggler")
-  const closeBtn = document.querySelector(".close-btn")
-  const chatInput = document.querySelector("#chat-input")
-  const sendButton = document.querySelector("#send-btn")
-  const deleteButton = document.querySelector("#delete-btn")
-  const expandBtn = document.querySelector(".expand-btn")
-  const chatContainer = document.querySelector(".chat-container")
+  const linkNode = document.createElement("link")
+  linkNode.type = "text/css"
+  linkNode.rel = "stylesheet"
+  linkNode.href =
+    "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap"
+  document.head.appendChild(linkNode)
+
+  const chatbotToggler = shadowRoot.querySelector(".chatbot-toggler")
+  const closeBtn = shadowRoot.querySelector(".close-btn")
+  const chatInput = shadowRoot.querySelector("#chat-input")
+  const sendButton = shadowRoot.querySelector("#send-btn")
+  const deleteButton = shadowRoot.querySelector("#delete-btn")
+  const expandBtn = shadowRoot.querySelector(".expand-btn")
+  const chatContainer = shadowRoot.querySelector(".chat-container")
 
   let userText = null
   const initialInputHeight = chatInput.scrollHeight
@@ -1428,7 +1442,7 @@ xmlns="http://www.w3.org/2000/svg"
     newLottiePlayer.setAttribute("loop", "")
     newLottiePlayer.setAttribute("autoplay", "")
 
-    const oldLottiePlayer = document.querySelector(
+    const oldLottiePlayer = shadowRoot.querySelector(
       ".chatbot-toggler span:last-child dotlottie-player"
     )
     if (oldLottiePlayer) {
@@ -1460,7 +1474,7 @@ xmlns="http://www.w3.org/2000/svg"
           newLottiePlayer.setAttribute("loop", "")
           newLottiePlayer.setAttribute("autoplay", "")
 
-          const oldLottiePlayer = document.querySelector(
+          const oldLottiePlayer = shadowRoot.querySelector(
             ".chatbot-toggler span:last-child dotlottie-player"
           )
           if (oldLottiePlayer) {
@@ -1671,8 +1685,8 @@ xmlns="http://www.w3.org/2000/svg"
       }
 
       if (isLimitReached) {
-        document.querySelector(".typing-content").style.display = "none"
-        document.querySelector(".send-btn").style.display = "none"
+        shadowRoot.querySelector(".typing-content").style.display = "none"
+        shadowRoot.querySelector(".send-btn").style.display = "none"
         const increaseLimitBtn = document.createElement("button")
         increaseLimitBtn.className = "increase-limit-btn"
         increaseLimitBtn.textContent = "Request Limit Increase"
@@ -1689,14 +1703,14 @@ xmlns="http://www.w3.org/2000/svg"
           increaseLimitBtn.style.backgroundColor = "rgba(94, 91, 230, 0.21)"
           increaseLimitBtn.style.cursor = "not-allowed"
           increaseLimitBtn.style.border = "1px solid #5E5BE6"
-          document.querySelector(".typing-content").innerHTML =
+          shadowRoot.querySelector(".typing-content").innerHTML =
             "Please check back after some time, you will get an email from us if your limit increase request gets approved"
-          document.querySelector(".typing-content").style.color =
+          shadowRoot.querySelector(".typing-content").style.color =
             "var(--text-color)"
-          document.querySelector(".typing-content").style.fontSize = "14px"
-          document.querySelector(".typing-content").style.textAlign = "center"
+          shadowRoot.querySelector(".typing-content").style.fontSize = "14px"
+          shadowRoot.querySelector(".typing-content").style.textAlign = "center"
 
-          document.querySelector(".typing-content").style.display = "block"
+          shadowRoot.querySelector(".typing-content").style.display = "block"
         }
         increaseLimitBtn.onclick = async () => {
           increaseLimitBtn.disabled = true
@@ -1713,14 +1727,15 @@ xmlns="http://www.w3.org/2000/svg"
             increaseLimitBtn.textContent = response.message
           } else {
             increaseLimitBtn.textContent = "Request Sent"
-            document.querySelector(".typing-content").innerHTML =
+            shadowRoot.querySelector(".typing-content").innerHTML =
               "Please check back after some time, you will get an email from us if your limit increase request gets approved"
-            document.querySelector(".typing-content").style.color =
+            shadowRoot.querySelector(".typing-content").style.color =
               "var(--text-color)"
-            document.querySelector(".typing-content").style.fontSize = "14px"
+            shadowRoot.querySelector(".typing-content").style.fontSize = "14px"
             // text center
-            document.querySelector(".typing-content").style.textAlign = "center"
-            document.querySelector(".typing-content").style.display = "block"
+            shadowRoot.querySelector(".typing-content").style.textAlign =
+              "center"
+            shadowRoot.querySelector(".typing-content").style.display = "block"
           }
           isRequestedForIncrease = true
           increaseLimitBtn.style.backgroundColor = "rgba(94, 91, 230, 0.21)"
@@ -1932,11 +1947,11 @@ xmlns="http://www.w3.org/2000/svg"
 
   const modalBackdrop = document.createElement("div")
   modalBackdrop.classList.add("modal-backdrop")
-  document.body.appendChild(modalBackdrop)
+  shadowRoot.appendChild(modalBackdrop)
 
   const handleCloseChatbot = () => {
     document.body.classList.remove("show-chatbot")
-    const chatbot = document.querySelector(".chatbot")
+    const chatbot = shadowRoot.querySelector(".chatbot")
     if (isExpanded) {
       isExpanded = false
       expandBtn.innerHTML = expandSvg
@@ -1981,14 +1996,14 @@ xmlns="http://www.w3.org/2000/svg"
     isExpanded = !isExpanded
     expandBtn.innerHTML = isExpanded ? minimizeSvg : expandSvg
     document.body.classList.toggle("modal-open")
-    const chatbot = document.querySelector(".chatbot")
+    const chatbot = shadowRoot.querySelector(".chatbot")
     chatbot.classList.toggle("expanded")
 
     if (isExpanded) {
       modalBackdrop.addEventListener("click", handleClickOutside)
       chatbot.classList.add("expanded")
       chatbot.classList.remove("collapsed")
-      const responseContainers = document.querySelectorAll(
+      const responseContainers = shadowRoot.querySelectorAll(
         ".response-container"
       )
       if (window.innerWidth <= 490) {
@@ -2041,13 +2056,19 @@ xmlns="http://www.w3.org/2000/svg"
   })
 
   const manageChatbotState = (state) => {
-    const chatbot = document.querySelector(".chatbot")
+    const chatbot = shadowRoot.querySelector(".chatbot")
     if (state === "close") {
       chatbot.classList.remove("open", "semi-closed")
       chatbot.classList.add("close")
+      if (window.innerWidth <= 490) {
+        document.body.style.overflow = ""
+      }
     } else if (state === "open") {
       chatbot.classList.remove("close", "semi-closed")
       chatbot.classList.add("open")
+      if (window.innerWidth <= 490) {
+        document.body.style.overflow = "hidden"
+      }
       chatContainer.scrollTo(0, chatContainer.scrollHeight)
     } else if (state === "semi-closed") {
       chatbot.classList.remove("open", "close")
@@ -2095,7 +2116,7 @@ xmlns="http://www.w3.org/2000/svg"
 
   chatbotToggler.addEventListener("click", () => {
     document.body.classList.toggle("show-chatbot")
-    const chatbot = document.querySelector(".chatbot")
+    const chatbot = shadowRoot.querySelector(".chatbot")
     if (chatbot.classList.contains("close")) {
       if (
         isDefaultTextPresent &&
@@ -2110,7 +2131,7 @@ xmlns="http://www.w3.org/2000/svg"
     }
   })
 
-  const heart = document.querySelector(".heart")
+  const heart = shadowRoot.querySelector(".heart")
   heart.addEventListener("click", function () {
     if (!this.classList.contains("liked")) {
       this.classList.add("is_animating")
