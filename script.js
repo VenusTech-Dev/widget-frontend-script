@@ -1237,6 +1237,13 @@ xmlns="http://www.w3.org/2000/svg"
       isDefaultTextPresent = true
     } else {
       prevMessages.forEach((prevMessage) => {
+        let escapedContent = prevMessage.content
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;")
+
         if (prevMessage.role === "user") {
           const html = `<div class="chat-content">
                       <div class="chat-details">
@@ -1244,7 +1251,7 @@ xmlns="http://www.w3.org/2000/svg"
                         <path d="M40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20Z" fill="white"/>
                         <path d="M20.183 25H16.5V14.6104H20.2135C21.2585 14.6104 22.1581 14.8184 22.9123 15.2344C23.6665 15.647 24.2466 16.2406 24.6524 17.015C25.0616 17.7895 25.2662 18.7162 25.2662 19.7951C25.2662 20.8773 25.0616 21.8074 24.6524 22.5853C24.2466 23.3631 23.6631 23.9601 22.9022 24.376C22.1446 24.792 21.2382 25 20.183 25ZM18.6966 23.1179H20.0917C20.7411 23.1179 21.2873 23.0029 21.7303 22.773C22.1767 22.5396 22.5116 22.1794 22.7348 21.6924C22.9614 21.202 23.0747 20.5696 23.0747 19.7951C23.0747 19.0274 22.9614 18.4 22.7348 17.913C22.5116 17.426 22.1784 17.0675 21.7354 16.8375C21.2923 16.6075 20.7461 16.4925 20.0968 16.4925H18.6966V23.1179Z" fill="#070B13"/>
                       </svg>
-                          <p>${prevMessage.content}</p>
+                          <p>${escapedContent}</p>
                       </div>
                   </div>`
           const outgoingChatDiv = createChatElement(html, "outgoing")
@@ -1310,7 +1317,7 @@ xmlns="http://www.w3.org/2000/svg"
           const responseContainer = document.createElement("div")
           responseContainer.classList.add("response-container")
 
-          responseContainer.innerHTML = marked.parse(prevMessage.content)
+          responseContainer.innerHTML = marked.parse(escapedContent)
 
           incomingChatDiv
             .querySelector(".chat-details")
@@ -1876,6 +1883,13 @@ xmlns="http://www.w3.org/2000/svg"
     if (isLoading) return
     userText = chatInput.value.trim()
     if (!userText) return
+
+    userText = userText
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;")
 
     chatInput.value = ""
     chatInput.style.height = `${initialInputHeight}px`
