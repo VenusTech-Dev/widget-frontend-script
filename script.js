@@ -360,7 +360,7 @@ export const initialise = async (api_key) => {
   z-index: 10010;
 }
 
-:host-context(body.show-chatbot) .chatbot-toggler {
+.show-chatbot .chatbot-toggler {
   transform: rotate(360deg);
 }
 
@@ -370,11 +370,11 @@ export const initialise = async (api_key) => {
 }
 
 .chatbot-toggler span:last-child,
-:host-context(body.show-chatbot) .chatbot-toggler span:first-child {
+.show-chatbot .chatbot-toggler span:first-child {
   opacity: 0;
 }
 
-:host-context(body.show-chatbot) .chatbot-toggler span:last-child {
+.show-chatbot .chatbot-toggler span:last-child {
   opacity: 1;
 }
 
@@ -405,7 +405,7 @@ export const initialise = async (api_key) => {
   transition: opacity 0.3s ease-in-out;
 }
 
-:host-context(body.show-chatbot) .chatbot {
+.show-chatbot .chatbot {
   opacity: 1;
   pointer-events: auto;
   transform: scale(1);
@@ -802,13 +802,13 @@ ol {
     width: 100%;
   }
 
-  :host-context(body.show-chatbot) .chatbot.semi-closed {
+  .show-chatbot .chatbot.semi-closed {
     transform: scale(0.75);
     right: 1.5rem;
     bottom: 5rem;
   }
 
-  :host-context(body.show-chatbot) .chatbot {
+  .show-chatbot .chatbot {
     // position: absolute;
     z-index: 10000;
     height: 100%;
@@ -852,7 +852,7 @@ ol {
   display: none;
 }
 
-:host-context(.modal-open) .chatbot {
+.modal-open .chatbot {
   position: fixed;
   top: 4%;
   bottom: 4%;
@@ -865,20 +865,20 @@ ol {
   max-width: calc(100% - 25%);
 }
 
-:host-context(.modal-open) .chat-container .chat {
+.modal-open .chat-container .chat {
   padding: 40px 50px;
 }
 
-:host-context(.modal-open) .modal-backdrop {
+.modal-open .modal-backdrop {
   display: block;
 }
 
-:host-context(.modal-open) .chat-container {
+.modal-open .chat-container {
   height: calc(100% - 120px);
   width: auto;
 }
 
-:host-context(.modal-open) .response-container {
+.modal-open .response-container {
   width: calc(100% - 40px);
 }
 
@@ -1930,13 +1930,13 @@ xmlns="http://www.w3.org/2000/svg"
   shadowRoot.appendChild(modalBackdrop)
 
   const handleCloseChatbot = () => {
-    document.body.classList.remove("show-chatbot")
+    htmlContainer.classList.remove("show-chatbot")
     const chatbot = shadowRoot.querySelector(".chatbot")
     if (isExpanded) {
       isExpanded = false
       expandBtn.innerHTML = expandSvg
-      if (document.body.classList.contains("modal-open")) {
-        document.body.classList.remove("modal-open")
+      if (htmlContainer.classList.contains("modal-open")) {
+        htmlContainer.classList.remove("modal-open")
         chatbot.classList.remove("expanded")
       }
     }
@@ -1975,7 +1975,7 @@ xmlns="http://www.w3.org/2000/svg"
   expandBtn.addEventListener("click", () => {
     isExpanded = !isExpanded
     expandBtn.innerHTML = isExpanded ? minimizeSvg : expandSvg
-    document.body.classList.toggle("modal-open")
+    htmlContainer.classList.toggle("modal-open")
     const chatbot = shadowRoot.querySelector(".chatbot")
     chatbot.classList.toggle("expanded")
 
@@ -2081,7 +2081,7 @@ xmlns="http://www.w3.org/2000/svg"
   chatContainer.scrollTo(0, chatContainer.scrollHeight)
   if (isDefaultTextPresent && window.matchMedia("(min-width: 768px)").matches) {
     manageChatbotState("semi-closed")
-    document.body.classList.add("show-chatbot")
+    htmlContainer.classList.add("show-chatbot")
   } else {
     manageChatbotState("close")
   }
@@ -2095,7 +2095,7 @@ xmlns="http://www.w3.org/2000/svg"
   })
 
   chatbotToggler.addEventListener("click", () => {
-    document.body.classList.toggle("show-chatbot")
+    htmlContainer.classList.toggle("show-chatbot")
     const chatbot = shadowRoot.querySelector(".chatbot")
     if (chatbot.classList.contains("close")) {
       if (
