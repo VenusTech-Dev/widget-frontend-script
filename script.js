@@ -637,6 +637,21 @@ ol {
   font-size: 0.875rem;
 }
 
+.response-container strong {
+  font-weight: 500;
+}
+
+.response-container > h1,
+.response-container > h2,
+.response-container > h3,
+.response-container > h4,
+.response-container > h5,
+.response-container > h6 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
 .chat .chat-details p.error {
   color: #e55865;
 }
@@ -1927,7 +1942,7 @@ xmlns="http://www.w3.org/2000/svg"
 
   const modalBackdrop = document.createElement("div")
   modalBackdrop.classList.add("modal-backdrop")
-  shadowRoot.appendChild(modalBackdrop)
+  htmlContainer.appendChild(modalBackdrop)
 
   const handleCloseChatbot = () => {
     htmlContainer.classList.remove("show-chatbot")
