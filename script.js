@@ -1023,7 +1023,7 @@ code {
   const lottieScript = document.createElement("script")
   lottieScript.type = "module"
   lottieScript.src =
-    "https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
+    "https://unpkg.com/@dotlottie/player-component@2.3.0/dist/dotlottie-player.mjs"
   shadowRoot.appendChild(lottieScript)
 
   const highlightStyle = document.createElement("link")
