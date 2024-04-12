@@ -360,7 +360,7 @@ export const initialise = async (api_key) => {
   z-index: 10010;
 }
 
-:host-context(body.show-chatbot) .chatbot-toggler {
+.show-chatbot .chatbot-toggler {
   transform: rotate(360deg);
 }
 
@@ -370,11 +370,11 @@ export const initialise = async (api_key) => {
 }
 
 .chatbot-toggler span:last-child,
-:host-context(body.show-chatbot) .chatbot-toggler span:first-child {
+.show-chatbot .chatbot-toggler span:first-child {
   opacity: 0;
 }
 
-:host-context(body.show-chatbot) .chatbot-toggler span:last-child {
+.show-chatbot .chatbot-toggler span:last-child {
   opacity: 1;
 }
 
@@ -390,6 +390,8 @@ export const initialise = async (api_key) => {
 }
 
 .chatbot {
+  display: flex;
+  flex-direction: column;
   position: fixed;
   ${position}: 2.25rem;
   bottom: 5.75rem;
@@ -403,7 +405,7 @@ export const initialise = async (api_key) => {
   transition: opacity 0.3s ease-in-out;
 }
 
-:host-context(body.show-chatbot) .chatbot {
+.show-chatbot .chatbot {
   opacity: 1;
   pointer-events: auto;
   transform: scale(1);
@@ -422,9 +424,9 @@ export const initialise = async (api_key) => {
 
 .chat-container {
   overflow-y: auto;
-  height: 32rem;
-  width: 27rem;
-  padding-bottom: 113px;
+  height: 52vh;
+  width: 28vw;
+  flex-grow: 1;
 }
 
 .chat-container .chat {
@@ -693,7 +695,7 @@ ol {
 }
 
 .typing-container {
-  position: fixed;
+  position: relative;
   bottom: 0;
   width: 100%;
   display: flex;
@@ -800,13 +802,13 @@ ol {
     width: 100%;
   }
 
-  :host-context(body.show-chatbot) .chatbot.semi-closed {
+  .show-chatbot .chatbot.semi-closed {
     transform: scale(0.75);
     right: 1.5rem;
     bottom: 5rem;
   }
 
-  :host-context(body.show-chatbot) .chatbot {
+  .show-chatbot .chatbot {
     // position: absolute;
     z-index: 10000;
     height: 100%;
@@ -850,7 +852,7 @@ ol {
   display: none;
 }
 
-:host-context(.modal-open) .chatbot {
+.modal-open .chatbot {
   position: fixed;
   top: 4%;
   bottom: 4%;
@@ -863,21 +865,20 @@ ol {
   max-width: calc(100% - 25%);
 }
 
-:host-context(.modal-open) .chat-container .chat {
+.modal-open .chat-container .chat {
   padding: 40px 50px;
 }
 
-:host-context(.modal-open) .modal-backdrop {
+.modal-open .modal-backdrop {
   display: block;
 }
 
-:host-context(.modal-open) .chat-container {
+.modal-open .chat-container {
   height: calc(100% - 120px);
   width: auto;
-  padding-bottom: 60px;
 }
 
-:host-context(.modal-open) .response-container {
+.modal-open .response-container {
   width: calc(100% - 40px);
 }
 
@@ -1098,36 +1099,6 @@ code {
     Nerd: "https://lottie.host/9ac1af7f-9d27-4c83-adbf-8d48d20993df/gN1jEA0Wcj.json",
   }
 
-  const copySvg = `<svg
-width="16"
-height="16"
-viewBox="0 0 16 16"
-fill="none"
-xmlns="http://www.w3.org/2000/svg"
->
-<path
-  d="M10.6667 2.66667H12C12.3536 2.66667 12.6928 2.80714 12.9428 3.05719C13.1929 3.30724 13.3333 3.64638 13.3333 4V13.3333C13.3333 13.687 13.1929 14.0261 12.9428 14.2761C12.6928 14.5262 12.3536 14.6667 12 14.6667H4C3.64638 14.6667 3.30724 14.5262 3.05719 14.2761C2.80714 14.0261 2.66666 13.687 2.66666 13.3333V4C2.66666 3.64638 2.80714 3.30724 3.05719 3.05719C3.30724 2.80714 3.64638 2.66667 4 2.66667H5.33333M6 1.33333H10C10.3682 1.33333 10.6667 1.63181 10.6667 2V3.33333C10.6667 3.70152 10.3682 4 10 4H6C5.63181 4 5.33333 3.70152 5.33333 3.33333V2C5.33333 1.63181 5.63181 1.33333 6 1.33333Z"
-  stroke="white"
-  stroke-linecap="round"
-  stroke-linejoin="round"
-/>
-</svg>`
-
-  const checkSvg = `<svg
-width="16"
-height="16"
-viewBox="0 0 16 16"
-fill="none"
-xmlns="http://www.w3.org/2000/svg"
->
-<path
-  d="M13.3333 4L6.00001 11.3333L2.66667 8"
-  stroke="white"
-  stroke-linecap="round"
-  stroke-linejoin="round"
-/>
-</svg>`
-
   const minimizeSvg = `<svg
 width="21"
 height="21"
@@ -1231,18 +1202,33 @@ xmlns="http://www.w3.org/2000/svg"
 
   let isDefaultTextPresent = false
 
+  const escapeHtml = (string) => {
+    return string
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;")
+  }
+
+  // Function to escape HTML except inside markdown code blocks
+  const escapeContent = (content) => {
+    return content
+      .split(/(```[\s\S]*?```|`[^`]*`)/)
+      .map((segment, index) => {
+        // Only escape content that is not inside a code block
+        return index % 2 === 0 ? escapeHtml(segment) : segment
+      })
+      .join("")
+  }
+
   const loadDataFromPrevMessagesArray = () => {
     if (prevMessages.length === 0) {
       chatContainer.innerHTML = defaultText
       isDefaultTextPresent = true
     } else {
       prevMessages.forEach((prevMessage) => {
-        let escapedContent = prevMessage.content
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;")
+        let escapedContent = escapeContent(prevMessage.content)
 
         if (prevMessage.role === "user") {
           const html = `<div class="chat-content">
@@ -1306,13 +1292,9 @@ xmlns="http://www.w3.org/2000/svg"
                         <div class="typing-dot" style="--delay: 0.4s"></div>
                     </div>
                 </div>
-                <span >${copySvg}</span>
             </div>`
           const incomingChatDiv = createChatElement(html, "incoming")
           chatContainer.appendChild(incomingChatDiv)
-
-          const copyButton = incomingChatDiv.querySelector("span")
-          copyButton.addEventListener("click", () => copyResponse(copyButton))
 
           const responseContainer = document.createElement("div")
           responseContainer.classList.add("response-container")
@@ -1367,11 +1349,11 @@ xmlns="http://www.w3.org/2000/svg"
         chatContainer.style.width = "auto"
       } else if (window.innerWidth > 490) {
         if (size === "s" && !isExpanded) {
-          chatContainer.style.height = "32rem"
-          chatContainer.style.width = "27rem"
+          chatContainer.style.height = "52vh"
+          chatContainer.style.width = "28vw"
         } else if (size === "l") {
           if (!isExpanded) {
-            chatContainer.style.height = "75vh"
+            chatContainer.style.height = "62vh"
             chatContainer.style.width = "30vw"
           } else {
             chatContainer.style.height = ""
@@ -1811,13 +1793,6 @@ xmlns="http://www.w3.org/2000/svg"
     }
   }
 
-  const copyResponse = (copyBtn) => {
-    const reponseTextElement = copyBtn.parentElement.querySelector("p")
-    navigator.clipboard.writeText(reponseTextElement.textContent)
-    copyBtn.innerHTML = `${checkSvg}`
-    setTimeout(() => (copyBtn.innerHTML = `${copySvg}`), 1000)
-  }
-
   const showTypingAnimation = () => {
     const html = `<div class="chat-content">
                     <div class="chat-details">
@@ -1867,13 +1842,9 @@ xmlns="http://www.w3.org/2000/svg"
                         <div class="typing-dot" style="--delay: 0.4s"></div>
                     </div>
                 </div>
-                <span >${copySvg}</span>
             </div>`
     const incomingChatDiv = createChatElement(html, "incoming")
     chatContainer.appendChild(incomingChatDiv)
-
-    const copyButton = incomingChatDiv.querySelector("span")
-    copyButton.addEventListener("click", () => copyResponse(copyButton))
 
     chatContainer.scrollTo(0, chatContainer.scrollHeight)
     getChatResponse(incomingChatDiv)
@@ -1884,12 +1855,7 @@ xmlns="http://www.w3.org/2000/svg"
     userText = chatInput.value.trim()
     if (!userText) return
 
-    userText = userText
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;")
+    userText = escapeContent(userText)
 
     chatInput.value = ""
     chatInput.style.height = `${initialInputHeight}px`
@@ -1964,13 +1930,13 @@ xmlns="http://www.w3.org/2000/svg"
   shadowRoot.appendChild(modalBackdrop)
 
   const handleCloseChatbot = () => {
-    document.body.classList.remove("show-chatbot")
+    htmlContainer.classList.remove("show-chatbot")
     const chatbot = shadowRoot.querySelector(".chatbot")
     if (isExpanded) {
       isExpanded = false
       expandBtn.innerHTML = expandSvg
-      if (document.body.classList.contains("modal-open")) {
-        document.body.classList.remove("modal-open")
+      if (htmlContainer.classList.contains("modal-open")) {
+        htmlContainer.classList.remove("modal-open")
         chatbot.classList.remove("expanded")
       }
     }
@@ -1989,11 +1955,11 @@ xmlns="http://www.w3.org/2000/svg"
         chatContainer.style.width = "auto"
       } else if (window.innerWidth > 490) {
         if (size === "s" && !isExpanded) {
-          chatContainer.style.height = "32rem"
-          chatContainer.style.width = "27rem"
+          chatContainer.style.height = "52vh"
+          chatContainer.style.width = "28vw"
         } else if (size === "l") {
           if (!isExpanded) {
-            chatContainer.style.height = "75vh"
+            chatContainer.style.height = "62vh"
             chatContainer.style.width = "30vw"
           } else {
             chatContainer.style.height = ""
@@ -2009,7 +1975,7 @@ xmlns="http://www.w3.org/2000/svg"
   expandBtn.addEventListener("click", () => {
     isExpanded = !isExpanded
     expandBtn.innerHTML = isExpanded ? minimizeSvg : expandSvg
-    document.body.classList.toggle("modal-open")
+    htmlContainer.classList.toggle("modal-open")
     const chatbot = shadowRoot.querySelector(".chatbot")
     chatbot.classList.toggle("expanded")
 
@@ -2051,11 +2017,11 @@ xmlns="http://www.w3.org/2000/svg"
           chatContainer.style.width = "auto"
         } else if (window.innerWidth > 490) {
           if (size === "s" && !isExpanded) {
-            chatContainer.style.height = "32rem"
-            chatContainer.style.width = "27rem"
+            chatContainer.style.height = "52vh"
+            chatContainer.style.width = "28vw"
           } else if (size === "l") {
             if (!isExpanded) {
-              chatContainer.style.height = "75vh"
+              chatContainer.style.height = "62vh"
               chatContainer.style.width = "30vw"
             } else {
               chatContainer.style.height = ""
@@ -2095,11 +2061,11 @@ xmlns="http://www.w3.org/2000/svg"
         chatContainer.style.width = "auto"
       } else if (window.innerWidth > 490) {
         if (size === "s" && !isExpanded) {
-          chatContainer.style.height = "32rem"
-          chatContainer.style.width = "27rem"
+          chatContainer.style.height = "52vh"
+          chatContainer.style.width = "28vw"
         } else if (size === "l") {
           if (!isExpanded) {
-            chatContainer.style.height = "75vh"
+            chatContainer.style.height = "62vh"
             chatContainer.style.width = "30vw"
           } else {
             chatContainer.style.height = ""
@@ -2115,7 +2081,7 @@ xmlns="http://www.w3.org/2000/svg"
   chatContainer.scrollTo(0, chatContainer.scrollHeight)
   if (isDefaultTextPresent && window.matchMedia("(min-width: 768px)").matches) {
     manageChatbotState("semi-closed")
-    document.body.classList.add("show-chatbot")
+    htmlContainer.classList.add("show-chatbot")
   } else {
     manageChatbotState("close")
   }
@@ -2129,7 +2095,7 @@ xmlns="http://www.w3.org/2000/svg"
   })
 
   chatbotToggler.addEventListener("click", () => {
-    document.body.classList.toggle("show-chatbot")
+    htmlContainer.classList.toggle("show-chatbot")
     const chatbot = shadowRoot.querySelector(".chatbot")
     if (chatbot.classList.contains("close")) {
       if (
