@@ -736,7 +736,6 @@ ol {
 
 .send-btn {
   cursor: pointer;
-  background: var(--prime);
   margin-left: 0.75rem;
   display: flex;
   align-items: center;
@@ -1499,12 +1498,36 @@ xmlns="http://www.w3.org/2000/svg"
   }
   let isLimitReached = false
   let isRequestedForIncrease = false
+  let abortController = null
+
+  const showSendButton = () => {
+    sendButton.innerHTML = `<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M16.5 30.25C24.0939 30.25 30.25 24.0939 30.25 16.5C30.25 8.90608 24.0939 2.75 16.5 2.75C8.90608 2.75 2.75 8.90608 2.75 16.5C2.75 24.0939 8.90608 30.25 16.5 30.25Z"
+      fill=${color} stroke=${color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M22 16.5L16.5 11L11 16.5" stroke="#FAFAFA" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round" />
+    <path d="M16.5 22V11" stroke="#FAFAFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>`
+  }
+
+  const showStopButton = () => {
+    sendButton.innerHTML = `<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16.5 30.25C24.0939 30.25 30.25 24.0939 30.25 16.5C30.25 8.90608 24.0939 2.75 16.5 2.75C8.90608 2.75 2.75 8.90608 2.75 16.5C2.75 24.0939 8.90608 30.25 16.5 30.25Z"
+    stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M20.625 12.375H12.375V20.625H20.625V12.375Z" fill="${color}" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    `
+  }
 
   const getChatResponse = async (incomingChatDiv) => {
     if (type === "dex") {
       changeLottieThinking("Nerd")
     }
+    const typingAnimation = incomingChatDiv.querySelector(".typing-animation")
     isLoading = true
+    abortController = new AbortController()
+    showStopButton()
     const API_URL = `${url}/addMessageAndRun`
     const responseContainer = document.createElement("div")
     responseContainer.classList.add("response-container")
@@ -1514,6 +1537,7 @@ xmlns="http://www.w3.org/2000/svg"
         "Content-Type": "application/json",
         "x-api-key": api_key,
       },
+      signal: abortController.signal,
       body: JSON.stringify({
         message: userText,
         threadId: threadId,
@@ -1782,15 +1806,23 @@ xmlns="http://www.w3.org/2000/svg"
         changeLottieThinking("Happy")
       }
     } catch (error) {
-      console.error("Error while fetching chat response", error)
-      const errorElement = document.createElement("p")
-      errorElement.classList.add("error")
-      errorElement.textContent = "Something went wrong! Please try again."
-      responseContainer.appendChild(errorElement)
+      if (error.name === "AbortError") {
+        console.log("Fetch aborted by user.")
+      } else {
+        console.error("Error while fetching chat response", error)
+        const errorElement = document.createElement("p")
+        errorElement.classList.add("error")
+        errorElement.textContent = "Something went wrong! Please try again."
+        responseContainer.appendChild(errorElement)
+      }
     } finally {
       chatContainer.scrollTo(0, chatContainer.scrollHeight)
       isDefaultTextPresent = false
       isLoading = false
+      if (typingAnimation) {
+        typingAnimation.remove()
+      }
+      showSendButton()
       if (responseContainer) {
         if (window.innerWidth <= 490) {
           chatContainer.style.height = ""
@@ -1938,7 +1970,20 @@ xmlns="http://www.w3.org/2000/svg"
   })
 
   loadDataFromPrevMessagesArray()
-  sendButton.addEventListener("click", handleOutgoingChat)
+
+  sendButton.addEventListener("click", () => {
+    if (!isLoading) {
+      handleOutgoingChat()
+      isLoading = true
+    } else {
+      if (abortController) {
+        abortController.abort()
+        abortController = null
+        isLoading = false
+        showSendButton()
+      }
+    }
+  })
 
   const modalBackdrop = document.createElement("div")
   modalBackdrop.classList.add("modal-backdrop")
