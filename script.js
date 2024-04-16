@@ -1499,6 +1499,8 @@ xmlns="http://www.w3.org/2000/svg"
   let isLimitReached = false
   let isRequestedForIncrease = false
   let abortController = null
+  let userTextBeforeEmailQuestion = ""
+  let isEmailVerified = false
 
   const showSendButton = () => {
     sendButton.innerHTML = `<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1541,6 +1543,7 @@ xmlns="http://www.w3.org/2000/svg"
       body: JSON.stringify({
         message: userText,
         threadId: threadId,
+        isDemoUrl: window.location.href.includes("https://app.devdex.ai/demo")
       }),
     }
 
@@ -1608,6 +1611,7 @@ xmlns="http://www.w3.org/2000/svg"
               messageContent = "Email verified now you can chat normally"
               // takeOTP = true
               takeEmail = false
+              isEmailVerified = true
             }
           }
           incomingChatDiv
@@ -1641,6 +1645,7 @@ xmlns="http://www.w3.org/2000/svg"
             )
             message = "Please enter your email to continue"
             takeEmail = true
+            userTextBeforeEmailQuestion = userText
           }
         } else {
           const reader = response.body.getReader()
@@ -1805,6 +1810,20 @@ xmlns="http://www.w3.org/2000/svg"
       if (type === "dex") {
         changeLottieThinking("Happy")
       }
+      if (isEmailVerified) {
+        // remove all the container incomingChatDiv and outgoingChatDiv  after the userTextBeforeEmailQuestion 
+        const chatDivs = chatContainer.querySelectorAll(".chat")
+        let remove = false
+        chatDivs.forEach((chatDiv) => {
+          if (remove) {
+            chatDiv.remove()
+          }
+          if (chatDiv.textContent.includes(userTextBeforeEmailQuestion)) {
+            remove = true
+            chatDiv.remove()
+          }
+        })
+      }
     } catch (error) {
       if (error.name === "AbortError") {
         console.log("Fetch aborted by user.")
@@ -1836,6 +1855,14 @@ xmlns="http://www.w3.org/2000/svg"
         }
       } else {
         console.error("Chat container not found in the DOM")
+      }
+      if (isEmailVerified) {
+        // add the userTextBeforeEmailQuestion to the textarea and dispatch the event of click on send button
+        chatInput.value = userTextBeforeEmailQuestion
+        const sendButton = shadowRoot.querySelector(".send-btn")
+        sendButton.click()
+        userTextBeforeEmailQuestion = ""
+        isEmailVerified = false
       }
     }
   }
