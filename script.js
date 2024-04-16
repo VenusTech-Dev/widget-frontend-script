@@ -143,7 +143,7 @@ export const initialise = async (api_key) => {
       />
     </svg>
   </span>
-  <p>Need help writing code?</p>
+  <p>Chat with Dex!</p>
   <div>
     <span class="heart"></span>
     <span class="delete-btn" id="delete-btn"
@@ -1248,8 +1248,15 @@ xmlns="http://www.w3.org/2000/svg"
           const html = `<div class="chat-content">
                       <div class="chat-details">
                       <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20Z" fill="white"/>
-                        <path d="M20.183 25H16.5V14.6104H20.2135C21.2585 14.6104 22.1581 14.8184 22.9123 15.2344C23.6665 15.647 24.2466 16.2406 24.6524 17.015C25.0616 17.7895 25.2662 18.7162 25.2662 19.7951C25.2662 20.8773 25.0616 21.8074 24.6524 22.5853C24.2466 23.3631 23.6631 23.9601 22.9022 24.376C22.1446 24.792 21.2382 25 20.183 25ZM18.6966 23.1179H20.0917C20.7411 23.1179 21.2873 23.0029 21.7303 22.773C22.1767 22.5396 22.5116 22.1794 22.7348 21.6924C22.9614 21.202 23.0747 20.5696 23.0747 19.7951C23.0747 19.0274 22.9614 18.4 22.7348 17.913C22.5116 17.426 22.1784 17.0675 21.7354 16.8375C21.2923 16.6075 20.7461 16.4925 20.0968 16.4925H18.6966V23.1179Z" fill="#070B13"/>
+                        <rect width="40" height="40" rx="8" fill="url(#paint0_linear_94_22)"/>
+                        <path d="M27.5833 29.75V27.5833C27.5833 26.4341 27.1268 25.3319 26.3141 24.5192C25.5015 23.7065 24.3993 23.25 23.25 23.25H16.75C15.6007 23.25 14.4985 23.7065 13.6859 24.5192C12.8732 25.3319 12.4167 26.4341 12.4167 27.5833V29.75" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 18.9167C22.3932 18.9167 24.3333 16.9766 24.3333 14.5833C24.3333 12.1901 22.3932 10.25 20 10.25C17.6068 10.25 15.6667 12.1901 15.6667 14.5833C15.6667 16.9766 17.6068 18.9167 20 18.9167Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                        <linearGradient id="paint0_linear_94_22" x1="20" y1="0" x2="20" y2="40" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#D9D9D9"/>
+                        <stop offset="1" stop-color="#737373"/>
+                        </linearGradient>
+                        </defs>
                       </svg>
                           <p>${escapedContent}</p>
                       </div>
@@ -1325,7 +1332,15 @@ xmlns="http://www.w3.org/2000/svg"
 
             const languageMatch = codeBlock.className.match(/language-(\w+)/)
             if (languageMatch) {
-              const language = languageMatch[1]
+              let language = languageMatch[1]
+
+              if (language === "curl") {
+                language = "bash"
+                codeBlock.className = codeBlock.className.replace(
+                  "curl",
+                  "bash"
+                )
+              }
 
               const headerDiv = document.createElement("div")
               headerDiv.className = "code-header"
@@ -1368,7 +1383,7 @@ xmlns="http://www.w3.org/2000/svg"
         } else if (size === "l") {
           if (!isExpanded) {
             chatContainer.style.height = "62vh"
-            chatContainer.style.width = "30vw"
+            chatContainer.style.width = "29vw"
           } else {
             chatContainer.style.height = ""
             chatContainer.style.width = ""
@@ -1784,7 +1799,12 @@ xmlns="http://www.w3.org/2000/svg"
 
         const languageMatch = codeBlock.className.match(/language-(\w+)/)
         if (languageMatch) {
-          const language = languageMatch[1]
+          let language = languageMatch[1]
+
+          if (language === "curl") {
+            language = "bash"
+            codeBlock.className = codeBlock.className.replace("curl", "bash")
+          }
 
           const headerDiv = document.createElement("div")
           headerDiv.className = "code-header"
@@ -1937,8 +1957,15 @@ xmlns="http://www.w3.org/2000/svg"
     const html = `<div class="chat-content">
                       <div class="chat-details">
                       <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20Z" fill="white"/>
-                        <path d="M20.183 25H16.5V14.6104H20.2135C21.2585 14.6104 22.1581 14.8184 22.9123 15.2344C23.6665 15.647 24.2466 16.2406 24.6524 17.015C25.0616 17.7895 25.2662 18.7162 25.2662 19.7951C25.2662 20.8773 25.0616 21.8074 24.6524 22.5853C24.2466 23.3631 23.6631 23.9601 22.9022 24.376C22.1446 24.792 21.2382 25 20.183 25ZM18.6966 23.1179H20.0917C20.7411 23.1179 21.2873 23.0029 21.7303 22.773C22.1767 22.5396 22.5116 22.1794 22.7348 21.6924C22.9614 21.202 23.0747 20.5696 23.0747 19.7951C23.0747 19.0274 22.9614 18.4 22.7348 17.913C22.5116 17.426 22.1784 17.0675 21.7354 16.8375C21.2923 16.6075 20.7461 16.4925 20.0968 16.4925H18.6966V23.1179Z" fill="#070B13"/>
+                        <rect width="40" height="40" rx="8" fill="url(#paint0_linear_94_22)"/>
+                        <path d="M27.5833 29.75V27.5833C27.5833 26.4341 27.1268 25.3319 26.3141 24.5192C25.5015 23.7065 24.3993 23.25 23.25 23.25H16.75C15.6007 23.25 14.4985 23.7065 13.6859 24.5192C12.8732 25.3319 12.4167 26.4341 12.4167 27.5833V29.75" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 18.9167C22.3932 18.9167 24.3333 16.9766 24.3333 14.5833C24.3333 12.1901 22.3932 10.25 20 10.25C17.6068 10.25 15.6667 12.1901 15.6667 14.5833C15.6667 16.9766 17.6068 18.9167 20 18.9167Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                        <linearGradient id="paint0_linear_94_22" x1="20" y1="0" x2="20" y2="40" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#D9D9D9"/>
+                        <stop offset="1" stop-color="#737373"/>
+                        </linearGradient>
+                        </defs>
                       </svg>
                           <p>${userText}</p>
                       </div>
@@ -2031,33 +2058,33 @@ xmlns="http://www.w3.org/2000/svg"
 
   closeBtn.addEventListener("click", handleCloseChatbot)
 
-  const handleClickOutside = (event) => {
-    if (isExpanded && !chatContainer.contains(event.target)) {
-      handleCloseChatbot()
-      manageChatbotState("close")
-    }
-    if (chatContainer) {
-      if (window.innerWidth <= 490) {
-        chatContainer.style.height = "93%"
-        chatContainer.style.width = "auto"
-      } else if (window.innerWidth > 490) {
-        if (size === "s" && !isExpanded) {
-          chatContainer.style.height = "52vh"
-          chatContainer.style.width = "28vw"
-        } else if (size === "l") {
-          if (!isExpanded) {
-            chatContainer.style.height = "62vh"
-            chatContainer.style.width = "30vw"
-          } else {
-            chatContainer.style.height = ""
-            chatContainer.style.width = ""
-          }
-        }
-      }
-    } else {
-      console.error("Chat container not found in the DOM")
-    }
-  }
+  // const handleClickOutside = (event) => {
+  //   if (isExpanded && !chatContainer.contains(event.target)) {
+  //     handleCloseChatbot()
+  //     manageChatbotState("close")
+  //   }
+  //   if (chatContainer) {
+  //     if (window.innerWidth <= 490) {
+  //       chatContainer.style.height = "93%"
+  //       chatContainer.style.width = "auto"
+  //     } else if (window.innerWidth > 490) {
+  //       if (size === "s" && !isExpanded) {
+  //         chatContainer.style.height = "52vh"
+  //         chatContainer.style.width = "28vw"
+  //       } else if (size === "l") {
+  //         if (!isExpanded) {
+  //           chatContainer.style.height = "62vh"
+  //           chatContainer.style.width = "29vw"
+  //         } else {
+  //           chatContainer.style.height = ""
+  //           chatContainer.style.width = ""
+  //         }
+  //       }
+  //     }
+  //   } else {
+  //     console.error("Chat container not found in the DOM")
+  //   }
+  // }
 
   expandBtn.addEventListener("click", () => {
     isExpanded = !isExpanded
@@ -2067,7 +2094,7 @@ xmlns="http://www.w3.org/2000/svg"
     chatbot.classList.toggle("expanded")
 
     if (isExpanded) {
-      modalBackdrop.addEventListener("click", handleClickOutside)
+      // modalBackdrop.addEventListener("click", handleClickOutside)
       chatbot.classList.add("expanded")
       chatbot.classList.remove("collapsed")
       const responseContainers = shadowRoot.querySelectorAll(
@@ -2095,8 +2122,7 @@ xmlns="http://www.w3.org/2000/svg"
         }
       }
     } else {
-      modalBackdrop.removeEventListener("click", handleClickOutside)
-      // chatbot.classList.add("collapsed");
+      // modalBackdrop.removeEventListener("click", handleClickOutside)
       chatbot.classList.remove("expanded")
       if (chatContainer) {
         if (window.innerWidth <= 490) {
@@ -2109,7 +2135,7 @@ xmlns="http://www.w3.org/2000/svg"
           } else if (size === "l") {
             if (!isExpanded) {
               chatContainer.style.height = "62vh"
-              chatContainer.style.width = "30vw"
+              chatContainer.style.width = "29vw"
             } else {
               chatContainer.style.height = ""
               chatContainer.style.width = ""
@@ -2153,7 +2179,7 @@ xmlns="http://www.w3.org/2000/svg"
         } else if (size === "l") {
           if (!isExpanded) {
             chatContainer.style.height = "62vh"
-            chatContainer.style.width = "30vw"
+            chatContainer.style.width = "29vw"
           } else {
             chatContainer.style.height = ""
             chatContainer.style.width = ""
