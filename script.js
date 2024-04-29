@@ -809,6 +809,8 @@ ol {
   }
 
   .chatbot.open {
+    top: 0;
+    left: 0;
     right: 0;
     bottom: 0;
     height: 100%;
@@ -1558,7 +1560,7 @@ xmlns="http://www.w3.org/2000/svg"
       body: JSON.stringify({
         message: userText,
         threadId: threadId,
-        isDemoUrl: window.location.href.includes("https://app.devdex.ai/demo")
+        isDemoUrl: window.location.href.includes("https://app.devdex.ai/demo"),
       }),
     }
 
@@ -1831,7 +1833,7 @@ xmlns="http://www.w3.org/2000/svg"
         changeLottieThinking("Happy")
       }
       if (isEmailVerified) {
-        // remove all the container incomingChatDiv and outgoingChatDiv  after the userTextBeforeEmailQuestion 
+        // remove all the container incomingChatDiv and outgoingChatDiv  after the userTextBeforeEmailQuestion
         const chatDivs = chatContainer.querySelectorAll(".chat")
         let remove = false
         chatDivs.forEach((chatDiv) => {
