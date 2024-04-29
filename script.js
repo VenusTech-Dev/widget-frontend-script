@@ -1685,20 +1685,20 @@ xmlns="http://www.w3.org/2000/svg"
               }
             }
           }
-          await (
-            await fetch(`${url}/addAssistantMessage`, {
-              method: "POST",
-              headers: {
-                "x-api-key": api_key,
-                "Content-Type": "application/json",
-                "x-fingerprint": visitorId,
-              },
-              body: JSON.stringify({
-                message: message,
-                threadId: threadId,
-              }),
-            })
-          ).json()
+          // await (
+          //   await fetch(`${url}/addAssistantMessage`, {
+          //     method: "POST",
+          //     headers: {
+          //       "x-api-key": api_key,
+          //       "Content-Type": "application/json",
+          //       "x-fingerprint": visitorId,
+          //     },
+          //     body: JSON.stringify({
+          //       message: message,
+          //       threadId: threadId,
+          //     }),
+          //   })
+          // ).json()
         }
         // if (
         //   !response.success &&
