@@ -563,7 +563,7 @@ span.material-symbols-rounded {
   align-self: flex-start;
   min-width: 40px;
   height: 40px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .chat-container .chat.outgoing svg {
@@ -809,6 +809,8 @@ ol {
   }
 
   .chatbot.open {
+    top: 0;
+    left: 0;
     right: 0;
     bottom: 0;
     height: 100%;
@@ -1247,14 +1249,14 @@ xmlns="http://www.w3.org/2000/svg"
         if (prevMessage.role === "user") {
           const html = `<div class="chat-content">
                       <div class="chat-details">
-                      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="40" height="40" rx="8" fill="url(#paint0_linear_94_22)"/>
-                        <path d="M27.5833 29.75V27.5833C27.5833 26.4341 27.1268 25.3319 26.3141 24.5192C25.5015 23.7065 24.3993 23.25 23.25 23.25H16.75C15.6007 23.25 14.4985 23.7065 13.6859 24.5192C12.8732 25.3319 12.4167 26.4341 12.4167 27.5833V29.75" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M20 18.9167C22.3932 18.9167 24.3333 16.9766 24.3333 14.5833C24.3333 12.1901 22.3932 10.25 20 10.25C17.6068 10.25 15.6667 12.1901 15.6667 14.5833C15.6667 16.9766 17.6068 18.9167 20 18.9167Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <svg width="40" height="40" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="33" height="33" rx="8" fill="url(#paint0_linear_94_22)"/>
+                        <path d="M22.7562 24.5437V22.7562C22.7562 21.8081 22.3796 20.8988 21.7092 20.2283C21.0387 19.5579 20.1294 19.1812 19.1812 19.1812H13.8187C12.8706 19.1812 11.9613 19.5579 11.2908 20.2283C10.6204 20.8988 10.2437 21.8081 10.2437 22.7562V24.5437" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16.5 15.6062C18.4744 15.6062 20.075 14.0057 20.075 12.0312C20.075 10.0568 18.4744 8.45624 16.5 8.45624C14.5256 8.45624 12.925 10.0568 12.925 12.0312C12.925 14.0057 14.5256 15.6062 16.5 15.6062Z" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <defs>
-                        <linearGradient id="paint0_linear_94_22" x1="20" y1="0" x2="20" y2="40" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#D9D9D9"/>
-                        <stop offset="1" stop-color="#737373"/>
+                        <linearGradient id="paint0_linear_94_22" x1="16.5" y1="0" x2="16.5" y2="33" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#51545C"/>
+                        <stop offset="1" stop-color="#32353B"/>
                         </linearGradient>
                         </defs>
                       </svg>
@@ -1558,7 +1560,7 @@ xmlns="http://www.w3.org/2000/svg"
       body: JSON.stringify({
         message: userText,
         threadId: threadId,
-        isDemoUrl: window.location.href.includes("https://app.devdex.ai/demo")
+        isDemoUrl: window.location.href.includes("https://app.devdex.ai/demo"),
       }),
     }
 
@@ -1831,7 +1833,7 @@ xmlns="http://www.w3.org/2000/svg"
         changeLottieThinking("Happy")
       }
       if (isEmailVerified) {
-        // remove all the container incomingChatDiv and outgoingChatDiv  after the userTextBeforeEmailQuestion 
+        // remove all the container incomingChatDiv and outgoingChatDiv  after the userTextBeforeEmailQuestion
         const chatDivs = chatContainer.querySelectorAll(".chat")
         let remove = false
         chatDivs.forEach((chatDiv) => {
@@ -1956,14 +1958,14 @@ xmlns="http://www.w3.org/2000/svg"
 
     const html = `<div class="chat-content">
                       <div class="chat-details">
-                      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="40" height="40" rx="8" fill="url(#paint0_linear_94_22)"/>
-                        <path d="M27.5833 29.75V27.5833C27.5833 26.4341 27.1268 25.3319 26.3141 24.5192C25.5015 23.7065 24.3993 23.25 23.25 23.25H16.75C15.6007 23.25 14.4985 23.7065 13.6859 24.5192C12.8732 25.3319 12.4167 26.4341 12.4167 27.5833V29.75" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M20 18.9167C22.3932 18.9167 24.3333 16.9766 24.3333 14.5833C24.3333 12.1901 22.3932 10.25 20 10.25C17.6068 10.25 15.6667 12.1901 15.6667 14.5833C15.6667 16.9766 17.6068 18.9167 20 18.9167Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <svg width="40" height="40" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="33" height="33" rx="8" fill="url(#paint0_linear_94_22)"/>
+                        <path d="M22.7562 24.5437V22.7562C22.7562 21.8081 22.3796 20.8988 21.7092 20.2283C21.0387 19.5579 20.1294 19.1812 19.1812 19.1812H13.8187C12.8706 19.1812 11.9613 19.5579 11.2908 20.2283C10.6204 20.8988 10.2437 21.8081 10.2437 22.7562V24.5437" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16.5 15.6062C18.4744 15.6062 20.075 14.0057 20.075 12.0312C20.075 10.0568 18.4744 8.45624 16.5 8.45624C14.5256 8.45624 12.925 10.0568 12.925 12.0312C12.925 14.0057 14.5256 15.6062 16.5 15.6062Z" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <defs>
-                        <linearGradient id="paint0_linear_94_22" x1="20" y1="0" x2="20" y2="40" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#D9D9D9"/>
-                        <stop offset="1" stop-color="#737373"/>
+                        <linearGradient id="paint0_linear_94_22" x1="16.5" y1="0" x2="16.5" y2="33" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#51545C"/>
+                        <stop offset="1" stop-color="#32353B"/>
                         </linearGradient>
                         </defs>
                       </svg>
